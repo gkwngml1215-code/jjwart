@@ -1,0 +1,8 @@
+# OS / 편집기
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+
+# 자리표시 이미지 백업 (실제 사진으로 교체 완료)
+assets/images/_placeholders/
