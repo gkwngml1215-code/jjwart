@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gkwngml1215-code.github.io/jjwart/sitemap.xml
+Sitemap: https://jjhoowart.co.kr/sitemap.xml
 
 User-agent: GPTBot
 Allow: /
