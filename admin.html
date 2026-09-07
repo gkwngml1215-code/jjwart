@@ -362,7 +362,7 @@ const defaultState = {
   seoTitle: "전주편평사마귀 무제한 제거 | 후한의원 전주점",
   seoDescription: "전주 완산구 후한의원 전주점 편평사마귀 제거 - 코트라 CO2레이저와 침 치료를 병행해 재발까지 관리합니다. 허정위 대표원장.",
   seoKeywords: "전주편평사마귀, 전주점제거, 전주사마귀, 후한의원 전주점, 전주쥐젖, 전주비립종",
-  siteDomain: "",
+  siteDomain: "https://gkwngml1215-code.github.io/jjwart/",
   ogImage: "",
   ogSiteName: "후한의원 전주점",
   ogType: "website",
@@ -1348,6 +1348,8 @@ document.getElementById('barPublishBtn').addEventListener('click', publishToSite
 })();
 
 if (!Array.isArray(state.columns)) state.columns = JSON.parse(JSON.stringify(defaultState.columns));
+// 이전에 도메인을 비워둔 채 저장했다면 기본 도메인으로 채운다 (작성한 컬럼은 그대로 유지)
+if (!state.siteDomain) state.siteDomain = defaultState.siteDomain;
 if (selectedColumn >= state.columns.length) selectedColumn = Math.max(0, state.columns.length - 1);
 
 bindSimpleFields();
