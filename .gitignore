@@ -6,3 +6,6 @@ desktop.ini
 
 # 자리표시 이미지 백업 (실제 사진으로 교체 완료)
 assets/images/_placeholders/
+
+# 어드민은 Cloudflare에 따로 올립니다 (공개 사이트에 두지 않음)
+admin.html
