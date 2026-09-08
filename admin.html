@@ -592,7 +592,7 @@ function buildLLMS(){
   const domain = domainOrPlaceholder().replace(/\/$/, '');
   const sections = [
     ['편평사마귀란', '#about'], ['치료방법', '#treatment'], ['비용', '#cost'],
-    ['전후사진', '#cases'], ['환자 후기', '#reviews'], ['의료진 소개', '#doctor'],
+    ['전후사진', '#cases'], ['의료진 소개', '#doctor'],
     ['자주 묻는 질문', '#faq'], ['상담 및 예약', '#consult'],
   ];
   const hoursText = state.hours.map(h => h.closed ? `${h.day} 휴진` : `${h.day} ${h.open}-${h.close}`).join(', ');
@@ -714,7 +714,6 @@ function buildColumnPage(){
     ['../index.html#similar', '유사질환'],
     ['../index.html#cases', '전후사진'],
     ['../columns.html', '원장 컬럼'],
-    ['../index.html#reviews', '후기'],
     ['../index.html#doctor', '의료진'],
     ['../index.html#faq', 'FAQ'],
   ];

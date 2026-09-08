@@ -7,7 +7,6 @@
 - [치료방법](https://jjhoowart.co.kr/#treatment)
 - [비용](https://jjhoowart.co.kr/#cost)
 - [전후사진](https://jjhoowart.co.kr/#cases)
-- [환자 후기](https://jjhoowart.co.kr/#reviews)
 - [의료진 소개](https://jjhoowart.co.kr/#doctor)
 - [자주 묻는 질문](https://jjhoowart.co.kr/#faq)
 - [상담 및 예약](https://jjhoowart.co.kr/#consult)
