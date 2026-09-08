@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 
 <title>제거 후 재발을 줄이는 생활 관리 | 후한의원 전주점 원장 컬럼</title>
 <meta name="description" content="편평사마귀 제거 후 상처 관리부터 면역력 관리까지, 재발 가능성을 낮추기 위해 신경 써야 할 부분을 후한의원 전주점 허정위 대표원장이 안내합니다.">
@@ -132,16 +134,13 @@
 }
 </script>
 </head>
-<body class="bg-white text-point antialiased">
+<body class="bg-white text-point antialiased pb-16 md:pb-0">
 
 <header id="top" class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-line">
   <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-20">
     <a href="../index.html" class="flex items-center gap-3">
-      <span class="relative w-9 h-9 flex items-center justify-center">
-        <svg viewBox="0 0 40 40" class="w-9 h-9">
-          <circle cx="14" cy="20" r="10" fill="none" stroke="#0d0d0d" stroke-width="2.5"/>
-          <circle cx="26" cy="20" r="10" fill="none" stroke="#0d0d0d" stroke-width="2.5"/>
-        </svg>
+      <span class="relative flex items-center justify-center">
+        <img src="../assets/images/logo.png" alt="후한의원 전주점 로고" class="h-11 w-auto" width="125" height="213">
       </span>
       <span class="leading-tight">
         <span class="block font-extrabold tracking-tight">후한의원 전주점</span>
@@ -181,9 +180,15 @@
   </nav>
 </header>
 
-<div class="fixed right-5 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3">
+<div class="fixed right-5 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col gap-3">
   <a href="https://pf.kakao.com/" target="_blank" rel="noopener" class="rounded-full bg-[#f1dc3a] text-point text-xs font-bold px-4 py-3 shadow-soft text-center leading-tight">카카오톡<br>상담</a>
   <a href="tel:063-251-1050" class="rounded-full bg-gold text-point text-xs font-bold px-4 py-3 shadow-soft text-center leading-tight">전화<br>상담</a>
+</div>
+
+<!-- 모바일 하단 고정 상담 바 (md 미만에서만 표시) -->
+<div class="fixed bottom-0 inset-x-0 z-40 md:hidden grid grid-cols-2 border-t border-line shadow-soft" style="padding-bottom:env(safe-area-inset-bottom)">
+  <a href="https://pf.kakao.com/" target="_blank" rel="noopener" class="flex items-center justify-center py-4 text-sm font-bold bg-[#f1dc3a] text-point">카카오톡 상담</a>
+  <a href="tel:063-251-1050" class="flex items-center justify-center py-4 text-sm font-bold bg-gold text-point">전화 상담</a>
 </div>
 
 <main class="pt-32 pb-20 lg:pt-40">
@@ -242,10 +247,7 @@
 
 <footer class="py-14 bg-white text-center">
   <div class="max-w-3xl mx-auto px-6">
-    <svg viewBox="0 0 40 40" class="w-8 h-8 mx-auto">
-      <circle cx="14" cy="20" r="10" fill="none" stroke="#0d0d0d" stroke-width="2.5"/>
-      <circle cx="26" cy="20" r="10" fill="none" stroke="#0d0d0d" stroke-width="2.5"/>
-    </svg>
+    <img src="../assets/images/logo.png" alt="후한의원 전주점 로고" class="h-10 w-auto mx-auto" width="125" height="213">
     <p class="mt-3 font-bold">후한의원 전주점</p>
     <p class="mt-2 text-sm text-muted">전라북도 전주시 완산구 온고을로 20 더즌빌딩 2층</p>
     <p class="text-sm text-muted">063-251-1050</p>
