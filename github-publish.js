@@ -1,16 +1,19 @@
 /* =========================================================
-   GitHub 발행 — 관리 도구 v2.0
+   GitHub 발행 — 관리 도구 v2.1 (전주점·강남점 공용)
    ---------------------------------------------------------
+   · 저장소 이름·GitHub 키 저장 이름은 site-config.js 의 SITE 에서 가져옵니다.
    · 목록의 원본은 GitHub 저장소(= 홈페이지)입니다.
      발행할 때마다 저장소 최신본을 먼저 읽고, 지금 글 1개만 병합합니다.
    · 바뀌는 파일 여러 개를 커밋 1개로 한꺼번에 올립니다.
      중간에 실패하면 홈페이지는 아무것도 바뀌지 않습니다.
    · 확인하는 사이 다른 곳에서 발행이 있었다면(동시 발행)
      최신본 기준으로 다시 계산해서 한 번 더 확인받습니다.
+   · 올리는 순간 인터넷이 끊겨 결과를 못 받았으면, 저장소를 다시 읽어
+     실제로 올라갔는지 확인합니다. (같은 글을 두 번 올리지 않게)
 ========================================================= */
 
 const GH = HooColumns.SITE.github;
-const GH_TOKEN_KEY = 'hoo-admin-gh-token';
+const GH_TOKEN_KEY = HooColumns.SITE.tokenKey;
 const GH_API = 'https://api.github.com/repos/' + GH.owner + '/' + GH.repo;
 
 function ghToken(){
@@ -30,23 +33,46 @@ function fromBase64(b64){
   return new TextDecoder('utf-8').decode(bytes);
 }
 
+/* GitHub 오류를 사람이 알아볼 수 있는 말로 바꾼다 */
+function ghFriendly(status, path, text){
+  if (status === 401) return 'GitHub 접근 키가 맞지 않거나 만료·삭제되었습니다.\n화면 아래 [🔑 GitHub 연결]에서 새 키를 넣어 주세요.';
+  if (status === 403 && /rate limit/i.test(text || '')) return 'GitHub 요청 한도를 잠시 넘었습니다. 1시간쯤 뒤에 다시 시도해 주세요.';
+  if (status === 403 || status === 404) {
+    return 'GitHub 저장소(' + GH.owner + '/' + GH.repo + ')에 접근할 권한이 없습니다.\n' +
+      '키를 만들 때 저장소를 ' + GH.repo + ' 로, 권한을 Contents: Read and write 로 지정했는지 확인해 주세요.';
+  }
+  if (status >= 500) return 'GitHub 서버가 잠시 응답하지 않습니다. 몇 분 뒤 다시 시도해 주세요.';
+  return 'GitHub 요청 실패 (' + status + ') ' + path + (text ? '\n' + String(text).slice(0, 200) : '');
+}
+
+function networkError(cause){
+  const e = new Error('인터넷 연결이 끊겼거나 GitHub에 닿지 못했습니다. 연결을 확인하고 다시 시도해 주세요.');
+  e.network = true;
+  e.cause = cause;
+  return e;
+}
+
 async function ghApi(path, options){
   options = options || {};
-  return fetch(GH_API + path, Object.assign({}, options, {
-    cache: 'no-store',   // 방금 발행한 내용을 옛날 값으로 읽지 않도록 브라우저 캐시를 쓰지 않는다
-    headers: Object.assign({
-      'Authorization': 'Bearer ' + ghToken(),
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    }, options.headers || {}),
-  }));
+  try {
+    return await fetch(GH_API + path, Object.assign({}, options, {
+      cache: 'no-store',   // 방금 발행한 내용을 옛날 값으로 읽지 않도록 브라우저 캐시를 쓰지 않는다
+      headers: Object.assign({
+        'Authorization': 'Bearer ' + ghToken(),
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      }, options.headers || {}),
+    }));
+  } catch (e) {
+    throw networkError(e);
+  }
 }
 
 async function ghJson(path, options){
   const res = await ghApi(path, options);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    const err = new Error('GitHub 요청 실패 (' + res.status + ') ' + path + (text ? '\n' + text.slice(0, 200) : ''));
+    const err = new Error(ghFriendly(res.status, path, text));
     err.status = res.status;
     throw err;
   }
@@ -59,6 +85,13 @@ function ghSend(path, body, method){
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body),
   });
+}
+
+async function ghFail(res, what){
+  const text = await res.text().catch(() => '');
+  const err = new Error(what + ' — ' + ghFriendly(res.status, '', text));
+  err.status = res.status;
+  return err;
 }
 
 async function ghBlobText(sha){
@@ -100,22 +133,40 @@ async function ghCommit(snap, changes, message){
     : {path: c.path, mode: '100644', type: 'blob', content: c.content}));
 
   let res = await ghSend('/git/trees', {base_tree: snap.treeSha, tree: tree});
-  if (!res.ok) throw new Error('파일 묶음 만들기 실패 (' + res.status + ')\n' + (await res.text()).slice(0, 200));
+  if (!res.ok) throw await ghFail(res, '파일 묶음 만들기 실패');
   const newTree = await res.json();
 
   res = await ghSend('/git/commits', {message: message, tree: newTree.sha, parents: [snap.headSha]});
-  if (!res.ok) throw new Error('커밋 만들기 실패 (' + res.status + ')\n' + (await res.text()).slice(0, 200));
+  if (!res.ok) throw await ghFail(res, '커밋 만들기 실패');
   const commit = await res.json();
 
   // force:false — 내가 읽은 뒤에 누가 먼저 올렸다면 덮어쓰지 않고 거절된다
-  res = await ghSend('/git/refs/heads/' + GH.branch, {sha: commit.sha, force: false}, 'PATCH');
+  try {
+    res = await ghSend('/git/refs/heads/' + GH.branch, {sha: commit.sha, force: false}, 'PATCH');
+  } catch (e) {
+    // 이 단계에서 연결이 끊기면 실제로는 올라갔을 수 있다 → 호출한 쪽에서 저장소를 다시 읽어 확인한다
+    if (e.network) e.maybePublished = true;
+    throw e;
+  }
   if (res.status === 409 || res.status === 422) {
     const e = new Error('다른 곳에서 먼저 발행되었습니다.');
     e.conflict = true;
     throw e;
   }
-  if (!res.ok) throw new Error('홈페이지 반영 실패 (' + res.status + ')\n' + (await res.text()).slice(0, 200));
+  if (!res.ok) throw await ghFail(res, '홈페이지 반영 실패');
   return commit.sha;
+}
+
+/* 계획한 변경이 저장소에 그대로 올라가 있는지 확인한다 (결과를 못 받았을 때) */
+async function ghVerifyPublished(plan){
+  const snap = await ghSnapshot();
+  for (const c of plan.changes) {
+    if (c.content == null) { if (snap.paths.has(c.path)) return false; continue; }
+    const sha = snap.paths.get(c.path);
+    if (!sha) return false;
+    if ((await ghBlobText(sha)) !== c.content) return false;
+  }
+  return true;
 }
 
 /* ---------- 상태 표시 ---------- */
@@ -229,9 +280,23 @@ async function runPublish(op, extraWarnings){
       try {
         await ghCommit(snap, plan.changes, commitMessage(op, plan));
       } catch (e) {
-        if (!e.conflict) throw e;
-        notice = '확인하시는 사이에 다른 곳에서 홈페이지가 바뀌었습니다. 최신 목록 기준으로 다시 계산했으니 한 번 더 확인해 주세요.';
-        continue;
+        if (e.conflict) {
+          notice = '확인하시는 사이에 다른 곳에서 홈페이지가 바뀌었습니다. 최신 목록 기준으로 다시 계산했으니 한 번 더 확인해 주세요.';
+          continue;
+        }
+        if (e.maybePublished) {
+          // 결과를 못 받았을 뿐 실제로는 올라갔을 수 있다. 저장소를 다시 읽어 확인한다.
+          setBarState('연결이 끊겨 발행 결과 확인 중…', true);
+          let done = false;
+          try { done = await ghVerifyPublished(plan); } catch (_) { done = false; }
+          if (done) { await onPublished(op, plan); return true; }
+          setBarState('발행 결과를 확인하지 못했습니다', false);
+          alert('올리는 도중 인터넷 연결이 끊겨 발행 결과를 확인하지 못했습니다.\n\n' +
+            '연결이 돌아오면 [↻ 다시 불러오기]를 눌러 홈페이지 목록을 확인해 주세요.\n' +
+            '글이 이미 올라가 있으면 다시 발행할 필요가 없습니다. (같은 제목의 글을 또 올리면 확인 화면에서 알려 드립니다)');
+          return false;
+        }
+        throw e;
       }
       await onPublished(op, plan);
       return true;
@@ -255,20 +320,19 @@ function commitMessage(op, plan){
       : '컬럼 수정: ' + s.updated[0].slug + ' ' + s.updated[0].title;
   return HooColumns.flat(head) +
     '\n\n발행 후 목록 ' + plan.after.length + '개 (추가 ' + s.added.length + ' / 수정 ' + s.updated.length +
-    ' / 유지 ' + s.kept.length + ' / 삭제 ' + s.deleted.length + ')\n관리 도구 v2.0';
+    ' / 유지 ' + s.kept.length + ' / 삭제 ' + s.deleted.length + ')\n관리 도구 ' + HooColumns.VERSION;
 }
 
 async function onPublished(op, plan){
   const P = HooColumns.PATHS;
   if (op.type === 'upsert') {
-    if (current) delete drafts[current.key];
-    delete drafts['slug:' + plan.column.slug];
+    if (current) removeDraft(current.key);
+    removeDraft('slug:' + plan.column.slug);
     current = {key: 'slug:' + plan.column.slug, isNew: false, baseSha: null, data: plan.column};
   } else {
-    delete drafts['slug:' + op.slug];
+    removeDraft('slug:' + op.slug);
     current = null;
   }
-  saveDrafts();
   await loadDeployed();
   if (current) current.baseSha = deployed.paths.get(P.data(current.data.slug)) || null;
   renderColumnSelect(); renderColumnFields(); renderAll();
@@ -321,6 +385,7 @@ function showPublishConfirm(plan, op, extraWarnings, notice){
       ${warnings.length ? `<div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs leading-relaxed space-y-2">${warnings.map(w => (w.needsAck
         ? `<label class="flex gap-2 items-start font-bold"><input type="checkbox" class="ack mt-0.5"><span>${E(w.text)}</span></label>`
         : `<p>⚠ ${E(w.text)}</p>`)).join('')}</div>` : ''}
+      ${isDelete ? '' : '<p class="mt-4 text-[11px] text-muted">실제 모양은 오른쪽 <b>[미리보기]</b> 탭에서 발행 전에 볼 수 있습니다.</p>'}
       <details class="mt-4">
         <summary class="text-[11px] text-muted cursor-pointer">바뀌는 파일 ${plan.changes.length}개 보기</summary>
         <ul class="mt-1 text-[11px] text-muted space-y-0.5">${files}</ul>
@@ -367,11 +432,7 @@ async function connectGithub(){
 
   try {
     const res = await ghApi('', {method: 'GET'});
-    if (res.status === 401) throw new Error('접근 키가 올바르지 않습니다. 다시 복사해 주세요.');
-    if (res.status === 403 || res.status === 404) {
-      throw new Error('이 저장소에 접근할 권한이 없습니다.\n\n키를 만들 때 저장소를 ' + GH.repo + ' 로,\n권한을 Contents: Read and write 로 지정했는지 확인해 주세요.');
-    }
-    if (!res.ok) throw new Error('연결 실패 (' + res.status + ')');
+    if (!res.ok) throw new Error(ghFriendly(res.status, '', await res.text().catch(() => '')));
     setBarState('GitHub 연결됨: ' + GH.owner + '/' + GH.repo, true);
     showToast('GitHub 연결 완료');
   } catch (e) {
@@ -424,10 +485,12 @@ async function ghUploadImage(file, name){
     branch: GH.branch,
   }, 'PUT');
   if (!res.ok) {
-    const t = await res.text();
     setBarState('사진 올리기 실패', false);
-    throw new Error('사진 저장 실패 (' + res.status + ')\n' + t.slice(0, 200));
+    throw await ghFail(res, '사진 저장 실패');
   }
+
+  // 방금 올린 사진을 발행 전 검사(사진 존재 확인)가 알 수 있게 목록에 넣는다
+  try { const j = await res.json(); if (j && j.content && j.content.sha) deployed.paths.set(path, j.content.sha); } catch (e) {}
 
   setBarState('사진 올림 — ' + name, true);
   return path;

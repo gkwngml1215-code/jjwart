@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO/GEO 관리 도구 v2.0 | 후한의원 전주점</title>
+<title>관리 도구</title>
 <meta name="robots" content="noindex, nofollow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,10 +49,10 @@
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-line">
   <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
     <div>
-      <p class="font-extrabold tracking-tight">후한의원 전주점 <span class="text-gold">관리 도구</span> <span class="text-[11px] font-bold text-muted align-middle">v2.0</span></p>
+      <p id="hdrTitle" class="font-extrabold tracking-tight">관리 도구</p>
       <p class="text-[11px] text-muted tracking-wide">원장 컬럼 발행 · SEO / GEO 코드 생성기</p>
     </div>
-    <a href="https://jjhoowart.co.kr/" target="_blank" rel="noopener" class="rounded-full border border-point text-sm font-bold px-4 py-2 hover:bg-gold-soft transition">홈페이지 열기 ↗</a>
+    <a id="hdrSiteLink" href="#" target="_blank" rel="noopener" class="rounded-full border border-point text-sm font-bold px-4 py-2 hover:bg-gold-soft transition">홈페이지 열기 ↗</a>
   </div>
 </header>
 
@@ -98,6 +98,21 @@
             <span class="text-muted text-xs">키워드 (쉼표로 구분)</span>
             <input data-bind="seoKeywords" class="mt-1 w-full rounded-lg border border-line px-3 py-2">
           </label>
+          <div class="rounded-lg bg-gold-soft/60 p-3 space-y-3">
+            <p class="text-xs font-bold">검색엔진 사이트 소유확인 (이 지점 전용 코드)</p>
+            <p class="text-[11px] text-muted leading-relaxed">
+              네이버 서치어드바이저 · 구글 서치콘솔에서 <b>이 지점 도메인</b>으로 발급받은 코드를 넣어주세요.
+              비워두면 아래 결과에서 해당 줄이 빠집니다. 다른 지점 코드를 넣으면 안 됩니다.
+            </p>
+            <label class="block">
+              <span class="text-muted text-xs">naver-site-verification</span>
+              <input data-bind="naverVerify" placeholder="네이버에서 받은 content 값만" class="mt-1 w-full rounded-lg border border-line px-3 py-2">
+            </label>
+            <label class="block">
+              <span class="text-muted text-xs">google-site-verification</span>
+              <input data-bind="googleVerify" placeholder="구글에서 받은 content 값만" class="mt-1 w-full rounded-lg border border-line px-3 py-2">
+            </label>
+          </div>
         </div>
       </details>
 
@@ -230,10 +245,11 @@
           <p class="text-muted text-xs mb-3 leading-relaxed">
             글을 고르면 <b class="text-point">홈페이지에 올라가 있는 내용</b>을 불러옵니다. 고치는 내용은 이 브라우저에 임시저장되고,
             화면 맨 아래 <b class="text-point">[발행 전 확인]</b>에서 확인한 뒤 <b class="text-point">[발행하기]</b>를 눌러야 홈페이지에 올라갑니다.
+            발행 전 실제 모양은 오른쪽 <b class="text-point">[미리보기]</b> 탭에서 볼 수 있습니다.
           </p>
           <p class="text-muted text-xs mb-3 leading-relaxed">
-            본문 입력칸 아래 <b class="text-point">[본문 중간 사진]</b> 에서 글 사이사이에 사진을 넣을 수 있습니다.
-            사진마다 알트 태그를 넣으면 이미지 검색·AI 답변 노출에 함께 반영됩니다.
+            본문은 HTML로 씁니다. 메모장이나 AI 답변을 그대로 붙여 넣었다면 본문 아래 <b class="text-point">[본문 자동 정리]</b>를 누르면 문단·소제목 모양으로 바뀝니다.
+            본문 입력칸 아래 <b class="text-point">[본문 중간 사진]</b>에서 글 사이사이에 사진을 넣을 수 있습니다.
           </p>
 
           <div class="flex flex-wrap gap-2 items-center mb-3">
@@ -243,7 +259,10 @@
 
           <div id="draftBar" class="hidden rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 mb-4 text-xs leading-relaxed flex flex-wrap items-center justify-between gap-2">
             <p id="draftBarText"></p>
-            <button id="discardDraftBtn" type="button" class="rounded-full border border-amber-400 bg-white text-[11px] font-bold px-3 py-1.5 hover:bg-amber-100 transition">되돌리기</button>
+            <div class="flex gap-2">
+              <button id="loadOtherTabBtn" type="button" class="hidden rounded-full border border-amber-400 bg-white text-[11px] font-bold px-3 py-1.5 hover:bg-amber-100 transition">다른 탭 내용 불러오기</button>
+              <button id="discardDraftBtn" type="button" class="rounded-full border border-amber-400 bg-white text-[11px] font-bold px-3 py-1.5 hover:bg-amber-100 transition">되돌리기</button>
+            </div>
           </div>
 
           <div id="columnFields" class="space-y-3"></div>
@@ -261,13 +280,22 @@
     <!-- ============ 출력 패널 ============ -->
     <div class="lg:sticky lg:top-24 space-y-3">
       <div class="flex flex-wrap gap-2">
+        <button class="out-tab active rounded-full border border-gold bg-gold-soft px-4 py-2 text-xs font-bold" data-out="outPreview">미리보기</button>
+        <button class="out-tab rounded-full border border-gold bg-gold-soft px-4 py-2 text-xs font-bold" data-out="outColumnCards">발행 후 목록</button>
+        <button class="out-tab rounded-full border border-gold bg-gold-soft px-4 py-2 text-xs font-bold" data-out="outColumnPage">컬럼 페이지 코드</button>
         <button class="out-tab rounded-full border border-point px-4 py-2 text-xs font-bold" data-out="outSeo">SEO 메타태그</button>
         <button class="out-tab rounded-full border border-point px-4 py-2 text-xs font-bold" data-out="outJsonld">구조화 데이터</button>
         <button class="out-tab rounded-full border border-point px-4 py-2 text-xs font-bold" data-out="outRobots">robots.txt</button>
         <button class="out-tab rounded-full border border-point px-4 py-2 text-xs font-bold" data-out="outLlms">llms.txt</button>
         <button class="out-tab rounded-full border border-point px-4 py-2 text-xs font-bold" data-out="outSitemap">sitemap.xml</button>
-        <button class="out-tab active rounded-full border border-gold bg-gold-soft px-4 py-2 text-xs font-bold" data-out="outColumnPage">컬럼 페이지 미리보기</button>
-        <button class="out-tab rounded-full border border-gold bg-gold-soft px-4 py-2 text-xs font-bold" data-out="outColumnCards">발행 후 목록 미리보기</button>
+      </div>
+
+      <div id="outPreview" class="out-panel rounded-2xl bg-white border border-line p-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
+          <p id="previewNote" class="text-xs text-muted leading-relaxed">편집 중인 글이 홈페이지에서 어떻게 보일지 미리 보여줍니다. (사진은 저장소에 올라간 것만 보입니다)</p>
+          <button id="previewRefreshBtn" type="button" class="rounded-full border border-line text-[11px] font-bold px-3 py-1.5 hover:bg-gold-soft transition">↻ 새로고침</button>
+        </div>
+        <iframe id="previewFrame" title="컬럼 미리보기" class="w-full rounded-xl border border-line bg-white" style="height:72vh" sandbox="allow-scripts"></iframe>
       </div>
 
       <div id="outSeo" class="out-panel hidden rounded-2xl bg-point text-white p-5">
@@ -309,9 +337,9 @@
         <pre id="codeSitemap" class="code text-xs leading-relaxed"></pre>
       </div>
 
-      <div id="outColumnPage" class="out-panel rounded-2xl bg-point text-white p-5">
+      <div id="outColumnPage" class="out-panel hidden rounded-2xl bg-point text-white p-5">
         <p class="text-xs text-white/70 mb-2 leading-relaxed">
-          편집 중인 컬럼이 발행되면 만들어질 페이지입니다. 발행은 화면 맨 아래 <b class="text-gold">[발행 전 확인]</b>으로 합니다.
+          편집 중인 컬럼이 발행되면 만들어질 페이지 코드입니다. 발행은 화면 맨 아래 <b class="text-gold">[발행 전 확인]</b>으로 합니다.
         </p>
         <div class="flex justify-end gap-2 mb-2">
           <button type="button" class="copy-btn rounded-full bg-gold text-point text-xs font-bold px-3 py-1.5" data-target="codeColumnPage">복사</button>
@@ -355,79 +383,41 @@
 
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] bg-gold text-point text-sm font-bold px-5 py-3 rounded-full shadow-soft opacity-0 pointer-events-none transition">복사되었습니다</div>
 
+<!-- 지점별 설정 (이 파일만 지점마다 다릅니다) -->
+<script src="site-config.js"></script>
 <!-- 컬럼 핵심 로직 (병합·파일명·페이지 생성) -->
 <script src="columns-core.js"></script>
 
 <script>
 const C = window.HooColumns;
+const SITE = C.SITE;
+const esc = C.esc;
 
 // 1~7번 설정은 이 브라우저에만 둔다 (코드 생성용).
 // 컬럼 목록은 여기에 두지 않는다 — 원본은 홈페이지 저장소의 columns/index.json 이다.
-const SETTINGS_KEY = 'hoojeonju_admin_settings_v2';
-const LEGACY_STATE_KEY = 'hoojeonju_admin_state_v1';   // v1 저장값: 설정만 가져오고 그 안의 컬럼 목록은 쓰지 않는다
-const DRAFTS_KEY = 'hoojeonju_admin_drafts_v2';        // 발행 전 임시저장본 (발행하면 지워진다)
+const SETTINGS_KEY = SITE.storagePrefix + '_admin_settings_v2';
+const LEGACY_STATE_KEY = SITE.storagePrefix + '_admin_state_v1';   // v1 저장값: 설정만 가져오고 그 안의 컬럼 목록은 쓰지 않는다
+const DRAFT_PREFIX = SITE.storagePrefix + '_admin_draft_v2:';      // 발행 전 임시저장본 — 글마다 따로 저장 (탭끼리 덮어쓰지 않게)
+const LEGACY_DRAFTS_KEY = SITE.storagePrefix + '_admin_drafts_v2'; // v2.0이 한 덩어리로 저장하던 것 → 글별로 나눠 옮긴다
+const TAB_ID = Math.random().toString(36).slice(2);                 // 다른 탭에서 같은 글을 고치는지 알아보는 표시
+const RAW_BASE = 'https://raw.githubusercontent.com/' + SITE.github.owner + '/' + SITE.github.repo + '/' + SITE.github.branch + '/';
 
-const defaultState = {
-  seoTitle: "전주편평사마귀 무제한 제거 | 후한의원 전주점",
-  seoDescription: "전주 완산구 후한의원 전주점 편평사마귀 제거 - 코트라 CO2레이저와 침 치료를 병행해 재발까지 관리합니다. 허정위 대표원장.",
-  seoKeywords: "전주편평사마귀, 전주점제거, 전주사마귀, 후한의원 전주점, 전주쥐젖, 전주비립종",
-  siteDomain: "https://jjhoowart.co.kr/",
-  ogImage: "",
-  ogSiteName: "후한의원 전주점",
-  ogType: "website",
-  twitterCard: "summary_large_image",
-  bizName: "후한의원 전주점",
-  bizDoctor: "허정위",
-  bizPhone: "063-251-1050",
-  bizStreet: "온고을로 20 더즌빌딩 2층",
-  bizCity: "전주시 완산구",
-  bizRegion: "전라북도",
-  bizPostal: "",
-  bizLat: "",
-  bizLng: "",
-  bizPriceRange: "₩₩ (25,000원~)",
-  bizSpecialty: "한의원 · 피부 병변 클리닉 (편평사마귀·쥐젖·비립종 제거)",
-  hours: [
-    {day:'월', code:'Mo', closed:false, open:'10:30', close:'20:30'},
-    {day:'화', code:'Tu', closed:false, open:'10:30', close:'20:30'},
-    {day:'수', code:'We', closed:false, open:'10:30', close:'20:30'},
-    {day:'목', code:'Th', closed:true,  open:'10:30', close:'20:30'},
-    {day:'금', code:'Fr', closed:false, open:'10:30', close:'20:30'},
-    {day:'토', code:'Sa', closed:false, open:'10:00', close:'14:00'},
-    {day:'일', code:'Su', closed:true,  open:'10:00', close:'14:00'},
-  ],
-  faqItems: [
-    {q:'편평사마귀 제거 후 어떻게 관리하나요?', a:'시술 부위가 아물기까지 3~7일 정도는 항생 연고나 습윤 밴드로 보호해 주세요. 딱지가 생기면 손으로 떼지 말고 자연스럽게 떨어질 때까지 기다려야 흉터·색소침착을 예방할 수 있습니다.'},
-    {q:'쥐젖, 비립종도 같이 제거되나요?', a:'네, 정확한 감별 진단 후 편평사마귀와 함께 쥐젖·비립종 등을 동시에 제거할 수 있습니다. 병변 종류와 범위에 따라 추가 비용이 발생할 수 있어 상담 시 함께 확인해 드립니다.'},
-    {q:'침 치료는 왜 함께 진행하나요?', a:'편평사마귀는 바이러스성 질환이라 겉으로 보이는 병변만 없애면 재발하기 쉽습니다. 침 치료로 국소 면역력을 높여 재발 가능성을 낮추는 방향까지 함께 관리합니다.'},
-    {q:'치료 후 화장은 언제부터 가능한가요?', a:'습윤 밴드를 붙인 경우 겉면 위로는 다음 날부터 가벼운 화장이 가능합니다. 밴드를 붙이지 않았다면 미세한 상처가 있을 수 있어 며칠간 자극을 피하는 것이 좋습니다. 정확한 시기는 시술 후 안내드립니다.'},
-    {q:'목요일에도 진료하나요?', a:'후한의원 전주점은 목요일과 일요일은 휴진입니다. 월·화·수·금은 10:30~20:30, 토요일은 10:00~14:00(점심시간 없이) 진료합니다.'},
-  ],
-  bots: [
-    {name:'GPTBot', label:'GPTBot (OpenAI 학습/검색)', allow:true},
-    {name:'ChatGPT-User', label:'ChatGPT-User (OpenAI 사용자 열람)', allow:true},
-    {name:'OAI-SearchBot', label:'OAI-SearchBot (OpenAI 검색 노출)', allow:true},
-    {name:'Google-Extended', label:'Google-Extended (Google AI 답변)', allow:true},
-    {name:'PerplexityBot', label:'PerplexityBot (Perplexity)', allow:true},
-    {name:'ClaudeBot', label:'ClaudeBot (Anthropic 크롤러)', allow:true},
-    {name:'anthropic-ai', label:'anthropic-ai (Anthropic)', allow:true},
-    {name:'Applebot-Extended', label:'Applebot-Extended (Apple Intelligence)', allow:true},
-    {name:'CCBot', label:'CCBot (Common Crawl, 다수 LLM 학습원)', allow:true},
-    {name:'Bytespider', label:'Bytespider (ByteDance)', allow:false},
-  ],
-  llmsSummary: "전라북도 전주시 완산구에 위치한 후한의원 전주점은 코트라 CO2레이저와 침 치료를 병행해 편평사마귀·쥐젖·비립종을 제거하고 재발까지 관리하는 한의원입니다.",
-  llmsDetail: "",
-  lastmod: "2026-09-07",
-};
+const defaultState = window.HOO_DEFAULT_SETTINGS;
+
+document.title = SITE.bizName + ' 관리 도구 ' + C.VERSION;
+document.getElementById('hdrTitle').innerHTML = esc(SITE.bizName) + ' <span class="text-gold">관리 도구</span> <span class="text-[11px] font-bold text-muted align-middle">' + esc(C.VERSION) + '</span>';
+document.getElementById('hdrSiteLink').href = SITE.domain;
 
 let state = loadSettings();
 
 // 홈페이지 저장소에서 읽어 온 목록 (github-publish.js 의 loadDeployed()가 채운다)
 let deployed = {loaded: false, index: [], paths: new Map(), headSha: '', texts: {}};
-// 발행 전 임시저장본: key('slug:column-04' 또는 'new:1726…') → {isNew, baseSha, data, savedAt}
+// 발행 전 임시저장본: key('slug:column-04' 또는 'new:1726…') → {isNew, baseSha, data, savedAt, tab}
 let drafts = loadDrafts();
 // 지금 편집 중인 글: {key, isNew, baseSha, data}
 let current = null;
+// 다른 탭에서 지금 글을 고쳤다는 표시
+let otherTabDraft = null;
 
 function loadSettings(){
   const parse = raw => {
@@ -449,18 +439,83 @@ function saveSettings(){
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
+/* ---------- 임시저장본 (글마다 따로) ---------- */
+
+function isEmptyDraft(data){
+  const d = C.normalizeColumn(data);
+  return !C.flat(d.title) && !d.body.trim() && !C.flat(d.cardSummary) && !C.flat(d.description) && !d.bodyImages.some(im => im.src);
+}
+
 function loadDrafts(){
+  const out = {};
   try {
-    const d = JSON.parse(localStorage.getItem(DRAFTS_KEY));
-    return d && typeof d === 'object' ? d : {};
-  } catch (e) { return {}; }
+    // v2.0이 한 덩어리로 저장한 임시저장본을 글별로 옮긴다
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_DRAFTS_KEY) || 'null');
+    if (legacy && typeof legacy === 'object') {
+      Object.keys(legacy).forEach(k => {
+        if (!localStorage.getItem(DRAFT_PREFIX + k)) localStorage.setItem(DRAFT_PREFIX + k, JSON.stringify(legacy[k]));
+      });
+      localStorage.removeItem(LEGACY_DRAFTS_KEY);
+    }
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || k.indexOf(DRAFT_PREFIX) !== 0) continue;
+      try {
+        const d = JSON.parse(localStorage.getItem(k));
+        if (d && d.data) out[k.slice(DRAFT_PREFIX.length)] = d;
+      } catch (e) {}
+    }
+  } catch (e) {}
+  // 아무것도 쓰지 않은 빈 새 글은 남기지 않는다
+  Object.keys(out).forEach(k => { if (out[k].isNew && isEmptyDraft(out[k].data)) removeDraft(k, out); });
+  return out;
 }
 
-function saveDrafts(){
-  try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch (e) {}
+function saveDraft(key){
+  try { localStorage.setItem(DRAFT_PREFIX + key, JSON.stringify(drafts[key])); } catch (e) {}
 }
 
-const esc = C.esc;
+function removeDraft(key, map){
+  delete (map || drafts)[key];
+  try { localStorage.removeItem(DRAFT_PREFIX + key); } catch (e) {}
+}
+
+// 편집할 때마다 이 브라우저에 임시저장 (홈페이지에는 [발행하기]를 눌러야 반영)
+function touchDraft(){
+  if (!current) return;
+  if (current.isNew && isEmptyDraft(current.data)) {
+    // 아직 아무것도 쓰지 않은 새 글은 저장하지 않는다 (빈 임시저장본이 쌓이지 않게)
+    if (drafts[current.key]) { removeDraft(current.key); renderColumnSelect(); }
+    return;
+  }
+  const first = !drafts[current.key];
+  drafts[current.key] = {isNew: current.isNew, baseSha: current.baseSha, data: current.data, savedAt: new Date().toISOString(), tab: TAB_ID};
+  saveDraft(current.key);
+  otherTabDraft = null;
+  if (first) { renderColumnSelect(); updateDraftBar(); }
+}
+
+// 다른 탭(창)에서 임시저장본이 바뀌면 여기에도 반영한다
+window.addEventListener('storage', e => {
+  if (!e.key || e.key.indexOf(DRAFT_PREFIX) !== 0) return;
+  const key = e.key.slice(DRAFT_PREFIX.length);
+  let d = null;
+  try { d = JSON.parse(e.newValue); } catch (_) {}
+  if (d && d.data) drafts[key] = d; else delete drafts[key];
+  if (current && current.key === key && d && d.tab !== TAB_ID) {
+    otherTabDraft = d;   // 이 탭의 내용은 그대로 두고, 알려만 준다
+    updateDraftBar();
+  }
+  renderColumnSelect();
+});
+
+function otherNewDraftSlugs(){
+  return Object.keys(drafts)
+    .filter(k => drafts[k].isNew && (!current || k !== current.key))
+    .map(k => drafts[k].data.slug);
+}
+
+/* ---------- 코드 생성 (1~7번) ---------- */
 
 function domainOrPlaceholder(){
   return (state.siteDomain || 'https://YOUR-DOMAIN.com/').trim();
@@ -474,7 +529,11 @@ function resolvedImage(){
 function buildSEO(){
   const domain = domainOrPlaceholder();
   const img = resolvedImage();
-  return `<title>${esc(state.seoTitle)}</title>
+  const verify = [
+    state.naverVerify  ? `<meta name="naver-site-verification" content="${esc(state.naverVerify.trim())}" />`  : '',
+    state.googleVerify ? `<meta name="google-site-verification" content="${esc(state.googleVerify.trim())}" />` : '',
+  ].filter(Boolean).join('\n');
+  return `${verify ? verify + '\n\n' : ''}<title>${esc(state.seoTitle)}</title>
 <meta name="description" content="${esc(state.seoDescription)}">
 <meta name="keywords" content="${esc(state.seoKeywords)}">
 <link rel="canonical" href="${esc(domain)}">
@@ -619,6 +678,7 @@ function renderColumnSelect(){
     if (d.isNew) add(key, `새 글 · ${d.data.title || '(제목 없음)'}  (미발행)`);
     else if (!listed.has(key) && deployed.loaded) add(key, `⚠ 홈페이지 목록에 없는 글의 임시저장본 · ${d.data.title || d.data.slug}`);
   });
+  if (current && current.isNew && !drafts[current.key]) add(current.key, '새 글 · (작성 중)');
 
   sel.value = current ? current.key : '';
 }
@@ -638,36 +698,42 @@ async function selectColumn(key){
       alert('글을 불러오지 못했습니다.\n\n' + e.message);
       current = null;
     }
+  } else {
+    return;   // 이미 지워진 새 글
   }
+  otherTabDraft = null;
   renderColumnSelect();
   renderColumnFields();
   renderAll();
 }
 
-// 편집할 때마다 이 브라우저에 임시저장 (홈페이지에는 [발행하기]를 눌러야 반영)
-function touchDraft(){
-  if (!current) return;
-  const first = !drafts[current.key];
-  drafts[current.key] = {isNew: current.isNew, baseSha: current.baseSha, data: current.data, savedAt: new Date().toISOString()};
-  saveDrafts();
-  if (first) { renderColumnSelect(); updateDraftBar(); }
-}
-
-function otherNewDraftSlugs(){
-  return Object.keys(drafts)
-    .filter(k => drafts[k].isNew && (!current || k !== current.key))
-    .map(k => drafts[k].data.slug);
-}
-
 function updateDraftBar(){
   const bar = document.getElementById('draftBar');
-  const show = !!current && (current.isNew || !!drafts[current.key]);
+  const text = document.getElementById('draftBarText');
+  const loadBtn = document.getElementById('loadOtherTabBtn');
+  const discardBtn = document.getElementById('discardDraftBtn');
+  const show = !!current && (current.isNew || !!drafts[current.key] || !!otherTabDraft);
   bar.classList.toggle('hidden', !show);
   if (!show) return;
-  document.getElementById('draftBarText').textContent = current.isNew
-    ? '아직 홈페이지에 없는 새 글입니다. 이 브라우저에만 임시저장되어 있고, [발행 전 확인] → [발행하기]를 눌러야 올라갑니다.'
-    : '고친 내용이 이 브라우저에 임시저장되어 있습니다. 아직 홈페이지에는 반영되지 않았습니다.';
-  document.getElementById('discardDraftBtn').textContent = current.isNew ? '임시저장 지우기' : '고친 내용 되돌리기';
+  loadBtn.classList.toggle('hidden', !otherTabDraft);
+  if (otherTabDraft) {
+    text.innerHTML = '<b>다른 탭(창)에서도 이 글을 고치고 있습니다.</b> 이 탭에서 계속 고치면 그쪽 내용이 이 탭의 내용으로 바뀝니다. 그쪽 내용을 이어서 쓰려면 [다른 탭 내용 불러오기]를 누르세요.';
+  } else if (current.isNew) {
+    text.textContent = '아직 홈페이지에 없는 새 글입니다. 이 브라우저에만 임시저장되어 있고, [발행 전 확인] → [발행하기]를 눌러야 올라갑니다.';
+  } else {
+    text.textContent = '고친 내용이 이 브라우저에 임시저장되어 있습니다. 아직 홈페이지에는 반영되지 않았습니다.';
+  }
+  discardBtn.textContent = current.isNew ? '임시저장 지우기' : '고친 내용 되돌리기';
+}
+
+function loadOtherTab(){
+  if (!current || !otherTabDraft) return;
+  current.data = C.normalizeColumn(otherTabDraft.data);
+  current.baseSha = otherTabDraft.baseSha || current.baseSha;
+  otherTabDraft = null;
+  renderColumnFields();
+  renderAll();
+  showToast('다른 탭의 내용을 불러왔습니다');
 }
 
 async function discardDraft(){
@@ -677,9 +743,9 @@ async function discardDraft(){
     : '고친 내용을 버리고 홈페이지에 올라가 있는 내용으로 되돌릴까요?';
   if (!confirm(msg)) return;
   const key = current.key;
-  delete drafts[key];
-  saveDrafts();
+  removeDraft(key);
   current = null;
+  otherTabDraft = null;
   if (deployed.index.some(c => 'slug:' + c.slug === key)) {
     await selectColumn(key);
   } else {
@@ -703,16 +769,16 @@ function addColumn(){
     data: C.normalizeColumn({
       slug: C.nextSlug(taken),
       title: '',
-      category: C.SITE.defaultCategory,
+      category: SITE.defaultCategory,
       datePublished: t,
       dateModified: t,
-      image: C.SITE.defaultImage,
+      image: SITE.defaultImage,
       schemaType: 'MedicalWebPage',
       body: '',
       bodyImages: [],
     }),
   };
-  touchDraft();
+  otherTabDraft = null;
   renderColumnSelect();
   renderColumnFields();
   renderAll();
@@ -743,7 +809,7 @@ function renderColumnFields(){
     {key: 'dateModified', label: current.isNew ? '수정일 (발행일과 같게 자동으로 들어갑니다)' : '수정일 (발행하면 오늘 날짜로 자동으로 바뀝니다)', type: 'date', readOnly: true},
     {key: 'image', label: '대표 이미지 경로 (프로젝트 루트 기준)', type: 'text'},
     {key: 'schemaType', label: 'GEO 스키마 타입', type: 'select', options: ['MedicalWebPage', 'Article', 'BlogPosting']},
-    {key: 'body', label: '본문 HTML (&lt;h2&gt; &lt;p&gt; &lt;ul&gt; 사용)', type: 'textarea', rows: 12, placeholder: '<p>첫 문단</p>\n<h2>소제목</h2>\n<p>내용</p>'},
+    {key: 'body', label: '본문 HTML (&lt;h2&gt; &lt;p&gt; &lt;ul&gt; 사용 — 태그 없이 붙여 넣었다면 아래 [본문 자동 정리])', type: 'textarea', rows: 12, placeholder: '<p>첫 문단</p>\n<h2>소제목</h2>\n<p>내용</p>'},
   ];
 
   fields.forEach(f => {
@@ -788,16 +854,57 @@ function renderColumnFields(){
       current.data[f.key] = v;
       touchDraft();
       if (f.key === 'title') renderColumnSelect();
-      if (f.key === 'body') refreshPositionSelects();
+      if (f.key === 'body') { refreshPositionSelects(); renderBodyCheck(); }
       renderAll();
     });
 
     label.appendChild(input);
     wrap.appendChild(label);
+
+    if (f.key === 'body') {
+      const tools = document.createElement('div');
+      tools.className = 'flex flex-wrap items-start gap-2';
+      tools.innerHTML = `
+        <button type="button" id="tidyBodyBtn" class="shrink-0 rounded-full border border-point text-[11px] font-bold px-3 py-1.5 hover:bg-gold-soft transition">본문 자동 정리</button>
+        <div id="bodyCheck" class="grow text-[11px] leading-relaxed"></div>`;
+      tools.querySelector('#tidyBodyBtn').addEventListener('click', () => {
+        const tidy = C.tidyBody(current.data.body);
+        if (tidy === current.data.body) { showToast('정리할 것이 없습니다'); return; }
+        current.data.body = tidy;
+        input.value = tidy;
+        touchDraft();
+        refreshPositionSelects();
+        renderBodyCheck();
+        renderAll();
+        showToast('본문을 정리했습니다');
+      });
+      wrap.appendChild(tools);
+    }
   });
 
   wrap.appendChild(buildBodyImageEditor(col));
+  renderBodyCheck();
   refreshImageDatalist();
+}
+
+// 본문을 고칠 때마다 형식 문제를 바로 보여준다
+function bodyIssues(body){
+  const r = C.checkBodyHtml(body);
+  const errors = r.errors.slice(), warnings = r.warnings.slice();
+  if (body.indexOf('본문을 입력하세요') > -1) errors.unshift('"본문을 입력하세요" 안내 문구가 남아 있습니다.');
+  if (body.indexOf('```') > -1) errors.unshift('``` 코드 표시가 들어 있습니다 (다른 곳에서 복사할 때 딸려온 것).');
+  return {errors, warnings};
+}
+
+function renderBodyCheck(){
+  const el = document.getElementById('bodyCheck');
+  if (!el || !current) return;
+  const body = current.data.body || '';
+  if (!body.trim()) { el.innerHTML = '<span class="text-muted">본문을 입력하면 형식을 검사합니다.</span>'; return; }
+  const r = bodyIssues(body);
+  if (!r.errors.length && !r.warnings.length) { el.innerHTML = '<span class="text-green-700">✓ 본문 형식 이상 없음</span>'; return; }
+  el.innerHTML = r.errors.map(e => `<p class="text-red-600 font-bold">✗ ${esc(e)}</p>`).join('') +
+    r.warnings.map(w => `<p class="text-amber-700">⚠ ${esc(w)}</p>`).join('');
 }
 
 /* --- 본문 중간 사진 편집 UI --- */
@@ -928,7 +1035,7 @@ function buildBodyImageEditor(col){
       renderAll();
     });
 
-    field('알트 태그 (사진 설명 — 검색 노출용)', 'alt', '예: 전주 후한의원 편평사마귀 레이저 시술 장면');
+    field('알트 태그 (사진 설명 — 검색 노출용)', 'alt', '예: ' + SITE.shortName + ' 후한의원 편평사마귀 레이저 시술 장면');
     field('사진 아래 캡션 (선택)', 'caption', '비워두면 표시되지 않습니다');
 
     const posLabel = document.createElement('label');
@@ -1043,6 +1150,36 @@ async function pickImageIntoAssets(){
   }
 }
 
+/* ---------- 미리보기 ---------- */
+
+let previewDirty = true, previewTimer = null;
+
+function previewVisible(){
+  return !document.getElementById('outPreview').classList.contains('hidden');
+}
+
+function updatePreview(){
+  previewDirty = false;
+  const frame = document.getElementById('previewFrame');
+  const note = document.getElementById('previewNote');
+  if (!current) {
+    frame.srcdoc = '<p style="font-family:sans-serif;color:#5b5b5b;padding:2rem">편집할 컬럼을 고르거나 [+ 새 컬럼]을 눌러 주세요.</p>';
+    return;
+  }
+  // 사진·로고는 저장소(GitHub)에서 바로 읽어오도록 기준 주소를 넣는다
+  const html = C.buildColumnPage(C.normalizeColumn(current.data))
+    .replace('<head>', '<head>\n<base href="' + esc(RAW_BASE + 'columns/') + '">');
+  frame.srcdoc = html;
+  note.textContent = (current.data.title || '(제목 없음)') + ' — 발행 후 홈페이지에서 보일 모양입니다. (방금 올린 사진은 저장소에서 바로 읽어 옵니다)';
+}
+
+function schedulePreview(){
+  previewDirty = true;
+  if (!previewVisible()) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(updatePreview, 600);
+}
+
 function renderAll(){
   document.getElementById('codeSeo').textContent = buildSEO();
   document.getElementById('codeJsonld').textContent = buildJSONLD();
@@ -1053,6 +1190,7 @@ function renderAll(){
     ? C.buildColumnPage(C.normalizeColumn(current.data))
     : '편집할 컬럼을 고르거나 [+ 새 컬럼]을 눌러 주세요.';
   document.getElementById('codeColumnCards').textContent = C.buildColumnCards(previewList());
+  schedulePreview();
 
   const dlBtn = document.querySelector('.dl-btn[data-target="codeColumnPage"]');
   if (dlBtn) dlBtn.dataset.filename = (current ? current.data.slug : 'column') + '.html';
@@ -1148,14 +1286,15 @@ document.getElementById('addFaqBtn').addEventListener('click', () => {
 document.getElementById('columnSelect').addEventListener('change', e => selectColumn(e.target.value));
 document.getElementById('addColumnBtn').addEventListener('click', addColumn);
 document.getElementById('discardDraftBtn').addEventListener('click', discardDraft);
+document.getElementById('loadOtherTabBtn').addEventListener('click', loadOtherTab);
+document.getElementById('previewRefreshBtn').addEventListener('click', updatePreview);
 
 // 삭제는 이 버튼을 눌렀을 때만 일어난다. 홈페이지 글은 확인 화면을 한 번 더 거친다.
 document.getElementById('delColumnBtn').addEventListener('click', () => {
   if (!current) return;
   if (current.isNew) {
-    if (!confirm('아직 발행하지 않은 새 글입니다. 이 브라우저의 임시저장본을 지울까요?')) return;
-    delete drafts[current.key];
-    saveDrafts();
+    if (drafts[current.key] && !confirm('아직 발행하지 않은 새 글입니다. 이 브라우저의 임시저장본을 지울까요?')) return;
+    removeDraft(current.key);
     current = null;
     renderColumnSelect(); renderColumnFields(); renderAll();
     return;
@@ -1180,6 +1319,7 @@ document.querySelectorAll('.out-tab').forEach(btn => {
     document.querySelectorAll('.out-panel').forEach(p => p.classList.add('hidden'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.out).classList.remove('hidden');
+    if (btn.dataset.out === 'outPreview' && previewDirty) updatePreview();
   });
 });
 

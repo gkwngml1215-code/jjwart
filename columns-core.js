@@ -1,8 +1,9 @@
 /* =========================================================
-   원장 컬럼 핵심 로직 — 관리 도구 v2.0
+   원장 컬럼 핵심 로직 — 관리 도구 v2.1
    ---------------------------------------------------------
    화면(DOM)을 쓰지 않는 순수 함수만 모았습니다.
    어드민(브라우저)과 검증 스크립트(node)가 똑같은 코드를 씁니다.
+   이 파일은 전주점·강남점이 똑같습니다. 지점마다 다른 값은 site-config.js 에 있습니다.
 
    이 파일이 지키는 약속 (자세한 설명: 어드민-제작-가이드.md)
    1. 컬럼 목록의 원본은 홈페이지 저장소의 columns/index.json 입니다.
@@ -14,23 +15,10 @@
 (function (root) {
   'use strict';
 
-  /* ---------- 지점별 설정 (다른 지점에 옮길 때는 여기만 바꿉니다) ---------- */
-  const SITE = {
-    domain: 'https://jjhoowart.co.kr/',
-    siteName: '후한의원 전주점',
-    bizName: '후한의원 전주점',
-    doctor: '허정위',
-    phone: '063-251-1050',
-    region: '전라북도',
-    city: '전주시 완산구',
-    street: '온고을로 20 더즌빌딩 2층',
-    twitterCard: 'summary_large_image',
-    kakaoUrl: 'https://pf.kakao.com/_triUj',
-    aboutCondition: '편평사마귀',
-    defaultCategory: '편평사마귀',
-    defaultImage: 'assets/images/doctor-heo.jpg',
-    github: { owner: 'gkwngml1215-code', repo: 'jjwart', branch: 'main' },
-  };
+  const VERSION = 'v2.1';
+  const IS_NODE = typeof module === 'object' && module.exports;
+  const SITE = IS_NODE ? require('./site-config.js').SITE : root.HOO_SITE;
+  if (!SITE) throw new Error('site-config.js 를 columns-core.js 보다 먼저 불러와야 합니다.');
 
   const PATHS = {
     index: 'columns/index.json',
@@ -42,8 +30,14 @@
   };
 
   const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  const RESERVED_SLUGS = new Set(['index', 'data']);   // columns/index.json, columns/data/ 와 겹치는 이름
   const INDEX_ABOUT = '원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.';
   const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+  // 본문에 들어가면 페이지를 망가뜨리거나 보안상 위험한 태그
+  const FORBIDDEN_TAGS = new Set(['script', 'style', 'iframe', 'form', 'input', 'button', 'textarea', 'select', 'object', 'embed', 'link', 'meta', 'html', 'head', 'body', 'base']);
+  // 닫는 태그를 빼먹어도 브라우저가 알아서 닫아 주는 태그
+  const OPTIONAL_CLOSE = new Set(['p', 'li', 'dt', 'dd', 'tr', 'td', 'th', 'thead', 'tbody', 'tfoot', 'option']);
+  const BLOCK_RE = /<(p|h[1-6]|ul|ol|figure|table|blockquote)\b/i;
 
   /* ---------- 작은 도우미 ---------- */
 
@@ -60,6 +54,8 @@
   function stripTags(html){ return String(html || '').replace(/<[^>]*>/g, ''); }
 
   function flat(str){ return String(str == null ? '' : str).replace(/\s+/g, ' ').trim(); }
+
+  const uniq = arr => arr.filter((v, i) => arr.indexOf(v) === i);
 
   function todayLocal(d){
     d = d || new Date();
@@ -158,6 +154,113 @@
     });
 
     return out.join('\n');
+  }
+
+  /* ---------- 본문 검사 / 자동 정리 ---------- */
+
+  // 붙여 넣은 본문 HTML이 페이지를 망가뜨리지 않는지 검사한다
+  function checkBodyHtml(body){
+    const src = String(body || '');
+    const errors = [], warnings = [];
+    if (!src.trim()) return {errors, warnings};
+
+    if (/<\/\s*</.test(src)) errors.push('본문에 깨진 태그(예: "</<p>")가 있습니다.');
+
+    const stack = [], stray = [], unclosed = [], forbidden = [];
+    const tagRe = /<!--[\s\S]*?-->|<\/?([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*>/g;
+    let m;
+    while ((m = tagRe.exec(src))) {
+      if (!m[1]) continue;
+      const name = m[1].toLowerCase();
+      if (FORBIDDEN_TAGS.has(name)) forbidden.push(name);
+      if (VOID_TAGS.has(name) || /\/>$/.test(m[0])) continue;
+      if (m[0][1] !== '/') { stack.push(name); continue; }
+      const at = stack.lastIndexOf(name);
+      if (at < 0) { stray.push(name); continue; }
+      stack.splice(at).slice(1).forEach(t => { if (!OPTIONAL_CLOSE.has(t)) unclosed.push(t); });
+    }
+    stack.forEach(t => { if (!OPTIONAL_CLOSE.has(t)) unclosed.push(t); });
+
+    if (forbidden.length) errors.push('본문에 넣을 수 없는 태그가 있습니다: ' + uniq(forbidden).map(t => '<' + t + '>').join(', '));
+    if (stray.length) errors.push('여는 태그 없이 닫는 태그가 있습니다: ' + uniq(stray).map(t => '</' + t + '>').join(', ') + ' — 페이지 모양이 깨질 수 있습니다.');
+    if (unclosed.length) errors.push('닫히지 않은 태그가 있습니다: ' + uniq(unclosed).map(t => '<' + t + '>').join(', ') + ' — 뒤쪽 글 전체에 번질 수 있습니다.');
+    if (!BLOCK_RE.test(src)) {
+      errors.push('본문이 HTML 형식이 아닙니다 (문단 태그가 없어 줄바꿈이 모두 사라집니다). [본문 자동 정리]를 눌러 주세요.');
+    } else if (splitBodyBlocks(src).some(b => b.tag === 'text')) {
+      warnings.push('태그 밖에 놓인 글이 있습니다 (문단 모양이 적용되지 않음). [본문 자동 정리]로 <p>를 씌울 수 있습니다.');
+    }
+    if (/<h1\b/i.test(src)) warnings.push('본문에 <h1> 제목이 있습니다. 글 제목은 자동으로 들어가니 본문 소제목은 <h2>를 써 주세요.');
+    const plain = src.replace(/<[^>]*>/g, '\n');
+    if (/^\s*#{1,6}\s+\S/m.test(plain) || /\*\*[^*\n]+\*\*/.test(plain)) {
+      warnings.push('본문에 마크다운 표시(#, ** 등)가 그대로 보입니다. [본문 자동 정리]로 바꿀 수 있습니다.');
+    }
+    return {errors, warnings};
+  }
+
+  // 다른 곳(메모장·AI 답변 등)에서 붙여 넣은 글을 페이지에 맞는 HTML로 정리한다
+  // · ```html 같은 코드 표시 줄과 "본문을 입력하세요" 안내 문구를 지운다
+  // · 태그 없이 쓴 글·마크다운이면 문단(<p>)·소제목(<h2>)·목록(<ul>/<ol>)으로 바꾼다
+  function tidyBody(body){
+    let s = String(body || '').replace(/\r\n/g, '\n');
+    s = s.replace(/^[ \t]*```[a-zA-Z]*[ \t]*$/gm, '');
+    s = s.replace(/본문을 입력하세요\.?/g, '');
+    s = s.replace(/<\/\s*<p>/g, '</p><p>').replace(/<p>\s*<\/p>/g, '');   // 깨진 태그를 먼저 고친 뒤 빈 문단을 지운다
+
+    if (BLOCK_RE.test(s)) {
+      // 이미 HTML이면 태그 밖에 놓인 글만 <p>로 감싼다
+      return splitBodyBlocks(s).map(b => (b.tag === 'text' ? '<p>' + b.html.replace(/\n+/g, '<br>\n') + '</p>' : b.html)).join('\n\n');
+    }
+
+    const inline = t => esc(t).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    const out = [];
+    let para = [], list = null;
+    const flushPara = () => { if (para.length) out.push('<p>' + para.map(inline).join('<br>\n') + '</p>'); para = []; };
+    const flushList = () => {
+      if (list) out.push('<' + list.tag + '>\n' + list.items.map(i => '<li>' + inline(i) + '</li>').join('\n') + '\n</' + list.tag + '>');
+      list = null;
+    };
+    s.split('\n').forEach(line => {
+      const t = line.trim();
+      let m;
+      if (!t) { flushPara(); flushList(); return; }
+      if ((m = /^#{1,6}\s+(.*)$/.exec(t))) {
+        flushPara(); flushList();
+        out.push('<h2>' + inline(m[1].replace(/\s*#+$/, '')) + '</h2>');
+        return;
+      }
+      if ((m = /^(?:[-*•]|\d+[.)])\s+(.*)$/.exec(t))) {
+        flushPara();
+        const tag = /^\d/.test(t) ? 'ol' : 'ul';
+        if (list && list.tag !== tag) flushList();
+        if (!list) list = {tag: tag, items: []};
+        list.items.push(m[1]);
+        return;
+      }
+      flushList();
+      para.push(t);
+    });
+    flushPara(); flushList();
+    return out.join('\n\n');
+  }
+
+  // 글에 쓰인 사진 경로를 저장소 기준 경로로 모은다 (외부 주소는 제외)
+  function imagePaths(col){
+    const out = [];
+    const local = p => p && !/^(https?:)?\/\//i.test(p) && !/^data:/i.test(p);
+    const fromRoot = p => { p = String(p || '').trim(); if (local(p)) out.push(p.replace(/^\/+/, '').replace(/^(\.\.\/)+/, '')); };
+    fromRoot(col.image || SITE.defaultImage);
+    (col.bodyImages || []).forEach(im => fromRoot(im.src));
+    // 본문에 직접 쓴 <img src> 는 컬럼 페이지(columns/) 기준 경로다
+    const re = /<img\b[^>]*\ssrc="([^"]*)"/gi;
+    let m;
+    while ((m = re.exec(String(col.body || '')))) {
+      const p = unesc(m[1]).trim();
+      if (!local(p)) continue;
+      if (/^\.\.\//.test(p)) out.push(p.replace(/^(\.\.\/)+/, ''));
+      else if (/^\//.test(p)) out.push(p.replace(/^\/+/, ''));
+      else out.push('columns/' + p);
+    }
+    return uniq(out);
   }
 
   /* ---------- 컬럼 페이지 / 목록 카드 ---------- */
@@ -370,7 +473,7 @@ ${mobileNav}
     <h1 class="mt-2 text-2xl md:text-4xl font-extrabold leading-tight">${esc(col.title)}</h1>
     <p class="mt-4 text-sm text-muted">${esc(col.datePublished)} · ${esc(SITE.bizName)} ${esc(SITE.doctor)} 대표원장</p>
 
-    <img src="${esc(imgRel)}" alt="${esc(col.title)}" class="w-full rounded-2xl shadow-soft object-cover aspect-[16/9] mt-8">
+    <img src="${esc(imgRel)}" alt="${esc(col.title)}" class="w-full rounded-2xl shadow-soft object-cover${SITE.photoClass} aspect-[16/9] mt-8">
 
     <div class="article-body mt-10">
 ${buildBodyWithImages(col)}
@@ -406,7 +509,7 @@ ${buildBodyWithImages(col)}
     <p class="mt-3 font-bold">${esc(SITE.bizName)}</p>
     <p class="mt-2 text-sm text-muted">${esc(SITE.region)} ${esc(SITE.city)} ${esc(SITE.street)}</p>
     <p class="text-sm text-muted">${esc(SITE.phone)}</p>
-    <p class="mt-6 text-xs text-muted/70">COPYRIGHT HOO KOREAN MEDICAL CLINIC JEONJU. ALL RIGHTS RESERVED.</p>
+    <p class="mt-6 text-xs text-muted/70">COPYRIGHT HOO KOREAN MEDICAL CLINIC ${SITE.copyright}. ALL RIGHTS RESERVED.</p>
   </div>
 </footer>
 
@@ -430,7 +533,7 @@ ${buildBodyWithImages(col)}
     const close = '<' + '!-- COLUMN CARD END --' + '>';
     return list.map(c => `      ${open}
       <a href="columns/${esc(c.slug)}.html" class="group block rounded-2xl border border-line overflow-hidden hover:shadow-soft transition">
-        <img src="${esc(c.image)}" alt="${esc(c.title)}" class="w-full aspect-[4/3] object-cover">
+        <img src="${esc(c.image)}" alt="${esc(c.title)}" class="w-full aspect-[4/3] object-cover${SITE.photoClass}">
         <div class="p-6">
           <p class="text-xs text-gold font-bold">${esc(c.category)}</p>
           <h2 class="mt-2 font-bold leading-snug group-hover:text-gold transition">${esc(c.title)}</h2>
@@ -611,10 +714,17 @@ ${kept.concat(cols).join('\n')}
     const errors = [], warnings = [];
     const body = c.body.trim();
     if (!SLUG_RE.test(c.slug)) errors.push('파일명은 영문 소문자·숫자·하이픈(-)만 쓸 수 있습니다.');
+    else if (RESERVED_SLUGS.has(c.slug)) errors.push('"' + c.slug + '" 는 파일명으로 쓸 수 없습니다 (저장소의 다른 파일과 겹침).');
     if (!c.title.trim() || c.title.trim() === '새 컬럼 제목') errors.push('제목을 입력해 주세요.');
+    else if (flat(c.title).length > 70) warnings.push('제목이 깁니다 (' + flat(c.title).length + '자). 검색 결과에서 뒷부분이 잘릴 수 있습니다.');
     if (!body) errors.push('본문을 입력해 주세요.');
-    else if (body.indexOf('본문을 입력하세요') > -1) errors.push('본문에 "본문을 입력하세요" 안내 문구가 남아 있습니다. 지워 주세요.');
-    if (body.indexOf('```') > -1) errors.push('본문에 ``` 표시가 들어 있습니다 (다른 곳에서 복사할 때 딸려온 코드 표시). 지워 주세요.');
+    else if (body.indexOf('본문을 입력하세요') > -1) errors.push('본문에 "본문을 입력하세요" 안내 문구가 남아 있습니다. [본문 자동 정리]를 누르거나 지워 주세요.');
+    if (body.indexOf('```') > -1) errors.push('본문에 ``` 표시가 들어 있습니다 (다른 곳에서 복사할 때 딸려온 코드 표시). [본문 자동 정리]를 눌러 주세요.');
+    if (body) {
+      const h = checkBodyHtml(body);
+      h.errors.forEach(e => { if (errors.indexOf(e) < 0) errors.push(e); });
+      h.warnings.forEach(w => warnings.push(w));
+    }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(c.datePublished)) errors.push('발행일을 입력해 주세요.');
     if (!c.cardSummary.trim()) warnings.push('목록 카드 요약이 비어 있습니다.');
     if (!c.description.trim()) warnings.push('SEO 메타 설명이 비어 있습니다.');
@@ -646,6 +756,14 @@ ${kept.concat(cols).join('\n')}
     if (op.type === 'upsert') {
       column = normalizeColumn(op.column);
       column.bodyImages = column.bodyImages.filter(im => im.src);
+
+      // 저장소에 없는 사진이 들어 있으면 깨진 사진으로 올라가므로 멈춘다
+      const missing = imagePaths(column).filter(p => !snap.paths.has(p));
+      if (missing.length) {
+        throw PlanError('홈페이지에 없는 사진이 들어 있어 발행을 멈춥니다 (그대로 올리면 사진이 깨져 보입니다).\n\n- ' +
+          missing.join('\n- ') + '\n\n[PC에서] 버튼으로 사진을 올리거나 경로를 고쳐 주세요.');
+      }
+
       if (op.isNew) {
         // 새 글인데 파일명이 이미 저장소에 있으면, 덮어쓰지 않고 다음 빈 번호로 바꾼다
         if (existing.has(column.slug)) {
@@ -655,6 +773,11 @@ ${kept.concat(cols).join('\n')}
           summary.renamedFrom = column.slug;
           warnings.push({text: `파일명 ${column.slug} 은(는) 이미 홈페이지에 있어서, 기존 글을 덮어쓰지 않도록 ${fresh} 로 바꿔 올립니다.`});
           column.slug = fresh;
+        }
+        // 같은 제목의 글이 이미 있으면 두 번 올리는 것일 수 있어 확인받는다
+        const dup = before.find(c => flat(c.title) === flat(column.title));
+        if (dup) {
+          warnings.push({needsAck: true, text: `같은 제목의 글이 이미 홈페이지에 있습니다 (${dup.slug}). 같은 글을 두 번 올리는 것이 아니라면 체크해 주세요.`});
         }
         if (!column.datePublished) column.datePublished = today;
         column.dateModified = column.datePublished;
@@ -770,13 +893,14 @@ ${kept.concat(cols).join('\n')}
   }
 
   const api = {
-    SITE, PATHS, SLUG_RE,
+    VERSION, SITE, PATHS, SLUG_RE,
     esc, unesc, flat, todayLocal,
     splitBodyBlocks, blockLabel, normalizeBodyImages, toColumnRelative, toAbsoluteImage, buildBodyWithImages,
+    checkBodyHtml, tidyBody, imagePaths,
     buildColumnPage, buildColumnCards, replaceCards, mergeSitemap, mergeLlms,
     normalizeColumn, cardFields, serializeData, parseIndex, serializeIndex,
     collectSlugs, nextSlug, validateColumn, planPublish, parseColumnHtml,
   };
-  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (IS_NODE) module.exports = api;
   else root.HooColumns = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
