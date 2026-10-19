@@ -63,7 +63,14 @@
   .eyebrow { letter-spacing: 0.18em; }
   .tab-btn.active { background: #0d0d0d; color: #fff; }
   .tab-panel.hidden { display: none; }
-  .faq-a.hidden { display: none; }
+  /* FAQ (details/summary) */
+  .faq-item > summary { list-style: none; cursor: pointer; }
+  .faq-item > summary::-webkit-details-marker { display: none; }
+  .faq-item > summary::marker { content: ""; }
+  .faq-icon::before { content: "+"; }
+  .faq-item[open] .faq-icon::before { content: "−"; }
+  .faq-answer { animation: faq-open 0.25s ease-out; }
+  @keyframes faq-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   .filter-btn.active { background: #0d0d0d; color: #fff; }
   .gallery-track::-webkit-scrollbar { display: none; }
   .gallery-track { scrollbar-width: none; -ms-overflow-style: none; }
@@ -609,38 +616,38 @@
     </div>
 
     <div class="mt-10 bg-white rounded-2xl shadow-soft divide-y divide-line">
-      <div class="px-6">
-        <button class="faq-q w-full flex justify-between items-center py-6 font-bold text-left">
-          편평사마귀 제거 후 어떻게 관리하나요? <span class="faq-icon text-gold text-xl">+</span>
-        </button>
-        <div class="faq-a hidden pb-6 text-sm text-muted leading-relaxed">
-          시술 부위가 아물기까지 7~10일 정도는 항생 연고나 습윤 밴드로 보호해 주세요. 딱지가 생기면 손으로 떼지 말고 자연스럽게 떨어질 때까지 기다려야 흉터·색소침착을 예방할 수 있습니다.
+      <details class="faq-item px-6" open>
+        <summary class="flex justify-between items-center py-6 font-bold text-left">
+          편평사마귀 제거 후 어떻게 관리하나요? <span class="faq-icon text-gold text-xl" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer pb-6 text-sm text-muted leading-relaxed">
+          <p>시술 부위가 아물기까지 7~10일 정도는 항생 연고나 습윤 밴드로 보호해 주세요. 딱지가 생기면 손으로 떼지 말고 자연스럽게 떨어질 때까지 기다려야 흉터·색소침착을 예방할 수 있습니다.</p>
         </div>
-      </div>
-      <div class="px-6">
-        <button class="faq-q w-full flex justify-between items-center py-6 font-bold text-left">
-          쥐젖, 비립종도 같이 제거되나요? <span class="faq-icon text-gold text-xl">+</span>
-        </button>
-        <div class="faq-a hidden pb-6 text-sm text-muted leading-relaxed">
-          네, 정확한 감별 진단 후 편평사마귀와 함께 쥐젖·비립종 등을 동시에 제거할 수 있습니다. 병변 종류와 범위에 따라 추가 비용이 발생할 수 있어 상담 시 함께 확인해 드립니다.
+      </details>
+      <details class="faq-item px-6">
+        <summary class="flex justify-between items-center py-6 font-bold text-left">
+          쥐젖, 비립종도 같이 제거되나요? <span class="faq-icon text-gold text-xl" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer pb-6 text-sm text-muted leading-relaxed">
+          <p>네, 정확한 감별 진단 후 편평사마귀와 함께 쥐젖·비립종 등을 동시에 제거할 수 있습니다. 병변 종류와 범위에 따라 추가 비용이 발생할 수 있어 상담 시 함께 확인해 드립니다.</p>
         </div>
-      </div>
-      <div class="px-6">
-        <button class="faq-q w-full flex justify-between items-center py-6 font-bold text-left">
-          치료 후 화장은 언제부터 가능한가요? <span class="faq-icon text-gold text-xl">+</span>
-        </button>
-        <div class="faq-a hidden pb-6 text-sm text-muted leading-relaxed">
-          습윤 밴드를 붙인 경우 겉면 위로는 다음 날부터 가벼운 화장이 가능합니다. 밴드를 붙이지 않았다면 미세한 상처가 있을 수 있어 며칠간 자극을 피하는 것이 좋습니다. 정확한 시기는 시술 후 안내드립니다.
+      </details>
+      <details class="faq-item px-6">
+        <summary class="flex justify-between items-center py-6 font-bold text-left">
+          치료 후 화장은 언제부터 가능한가요? <span class="faq-icon text-gold text-xl" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer pb-6 text-sm text-muted leading-relaxed">
+          <p>습윤 밴드를 붙인 경우 겉면 위로는 다음 날부터 가벼운 화장이 가능합니다. 밴드를 붙이지 않았다면 미세한 상처가 있을 수 있어 며칠간 자극을 피하는 것이 좋습니다. 정확한 시기는 시술 후 안내드립니다.</p>
         </div>
-      </div>
-      <div class="px-6">
-        <button class="faq-q w-full flex justify-between items-center py-6 font-bold text-left">
-          목요일에도 진료하나요? <span class="faq-icon text-gold text-xl">+</span>
-        </button>
-        <div class="faq-a hidden pb-6 text-sm text-muted leading-relaxed">
-          후한의원 전주점은 목요일과 일요일은 휴진입니다. 월·화·수·금은 10:30~20:00, 토요일은 10:00~14:00(점심시간 없이) 진료합니다.
+      </details>
+      <details class="faq-item px-6">
+        <summary class="flex justify-between items-center py-6 font-bold text-left">
+          목요일에도 진료하나요? <span class="faq-icon text-gold text-xl" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer pb-6 text-sm text-muted leading-relaxed">
+          <p>후한의원 전주점은 목요일과 일요일은 휴진입니다. 월·화·수·금은 10:30~20:00, 토요일은 10:00~14:00(점심시간 없이) 진료합니다.</p>
         </div>
-      </div>
+      </details>
     </div>
   </div>
 </section>
@@ -748,16 +755,6 @@
       document.querySelectorAll('.case-card').forEach(card => {
         card.style.display = (filter === 'all' || card.dataset.part === filter) ? '' : 'none';
       });
-    });
-  });
-
-  // FAQ 아코디언
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => {
-      const a = q.nextElementSibling;
-      const icon = q.querySelector('.faq-icon');
-      a.classList.toggle('hidden');
-      icon.textContent = a.classList.contains('hidden') ? '+' : '−';
     });
   });
 </script>
