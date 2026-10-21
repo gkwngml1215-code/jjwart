@@ -29,6 +29,8 @@ function loadCore(){
   if (process.env.HOO_CORE_DIR) return require(path.resolve(process.env.HOO_CORE_DIR, 'columns-core.js'));
   // admin 브랜치의 최신 엔진을 임시 폴더에 꺼내 쓴다 (엔진이 두 군데로 갈라지지 않게)
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hoo-core-'));
+  // 얕은 복제(--depth 1)에는 admin 브랜치가 없을 수 있어 먼저 받아 둔다
+  try { execFileSync('git', ['fetch', '-q', '--depth', '1', 'origin', 'admin:refs/remotes/origin/admin'], {cwd: root, stdio: 'ignore'}); } catch (e) { /* 오프라인이면 있는 것으로 */ }
   const show = f => {
     for (const ref of ['origin/admin', 'admin']) {
       try { return execFileSync('git', ['show', `${ref}:${f}`], {cwd: root, stdio: ['ignore', 'pipe', 'ignore']}); } catch (e) { /* 다음 */ }
