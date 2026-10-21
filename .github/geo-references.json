@@ -1,0 +1,159 @@
+{
+  "about": "검증된 참고자료 주소 (2026-10-21 확인). GEO 칼럼 참고자료 3개는 반드시 대한피부과학회 1 + DermNet 1 + NHS 1. 대한피부과학회는 편평사마귀·지루각화증·점 문서만 있으므로 주제가 쥐젖·비립종 등이어도 편평사마귀 감별 맥락으로 대한피부과학회 편평사마귀 문서를 인용합니다.",
+  "references": [
+    {
+      "topic": "편평사마귀·사마귀",
+      "source": "대한피부과학회",
+      "slot": "kr",
+      "title": "편평사마귀 (Flat warts)",
+      "url": "https://www.derma.or.kr/new/general/disease.php?uid=587&mod=document"
+    },
+    {
+      "topic": "편평사마귀·사마귀",
+      "source": "국가건강정보포털(질병관리청)",
+      "slot": "kr",
+      "title": "사마귀",
+      "url": "https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfo/gnrlzHealthInfoView.do?cntnts_sn=6537"
+    },
+    {
+      "topic": "편평사마귀·사마귀",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Warts, verrucas, human papillomavirus infection",
+      "url": "https://dermnetnz.org/topics/viral-wart"
+    },
+    {
+      "topic": "편평사마귀·사마귀",
+      "source": "NHS",
+      "slot": "nhs",
+      "title": "Warts and verrucas",
+      "url": "https://www.nhs.uk/conditions/warts-and-verrucas/"
+    },
+    {
+      "topic": "쥐젖",
+      "source": "서울대학교병원",
+      "slot": "kr",
+      "title": "연성 섬유종",
+      "url": "https://www.snuh.org/health/nMedInfo/nView.do?category=DIS&medid=AA000521"
+    },
+    {
+      "topic": "쥐젖",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Skin tags. Acrochordons",
+      "url": "https://dermnetnz.org/topics/skin-tag"
+    },
+    {
+      "topic": "쥐젖",
+      "source": "NHS",
+      "slot": "nhs",
+      "title": "Skin tags",
+      "url": "https://www.nhs.uk/conditions/skin-tags/"
+    },
+    {
+      "topic": "비립종",
+      "source": "서울대학교병원",
+      "slot": "kr",
+      "title": "비립종",
+      "url": "https://www.snuh.org/health/nMedInfo/nView.do?category=DIS&medid=AA000519"
+    },
+    {
+      "topic": "비립종",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Milium, milia",
+      "url": "https://dermnetnz.org/topics/milium"
+    },
+    {
+      "topic": "지루각화증·검버섯",
+      "source": "대한피부과학회",
+      "slot": "kr",
+      "title": "지루각화증(검버섯)",
+      "url": "https://www.derma.or.kr/new/general/disease.php?uid=5187&mod=document"
+    },
+    {
+      "topic": "지루각화증·검버섯",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Seborrhoeic keratoses (brown warts, basal cell papillomas, seborrheic keratosis)",
+      "url": "https://dermnetnz.org/topics/seborrhoeic-keratosis"
+    },
+    {
+      "topic": "지루각화증·검버섯",
+      "source": "NHS (Newcastle Hospitals)",
+      "slot": "nhs",
+      "title": "Seborrhoeic Keratosis (seborrheic warts)",
+      "url": "https://www.newcastle-hospitals.nhs.uk/services/dermatology/patient-dermatology-information-leaflets/seborrhoeic-keratosis-seborrheic-warts/"
+    },
+    {
+      "topic": "점",
+      "source": "국가건강정보포털(질병관리청)",
+      "slot": "kr",
+      "title": "모반(점)",
+      "url": "https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfo/gnrlzHealthInfoView.do?cntnts_sn=5692"
+    },
+    {
+      "topic": "점",
+      "source": "대한피부과학회",
+      "slot": "kr",
+      "title": "손발의 점",
+      "url": "https://www.derma.or.kr/new/general/disease.php?uid=5159&mod=document"
+    },
+    {
+      "topic": "점",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Moles (melanocytic naevi, pigmented nevi)",
+      "url": "https://dermnetnz.org/topics/melanocytic-naevus"
+    },
+    {
+      "topic": "점",
+      "source": "NHS",
+      "slot": "nhs",
+      "title": "Moles",
+      "url": "https://www.nhs.uk/conditions/moles/"
+    },
+    {
+      "topic": "한관종",
+      "source": "서울대학교병원",
+      "slot": "kr",
+      "title": "한관종",
+      "url": "https://www.snuh.org/health/nMedInfo/nView.do?category=DIS&medid=AA000734"
+    },
+    {
+      "topic": "한관종",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Syringoma",
+      "url": "https://dermnetnz.org/topics/syringoma"
+    },
+    {
+      "topic": "피지선증식증",
+      "source": "서울대학교병원",
+      "slot": "kr",
+      "title": "피지샘증식증",
+      "url": "https://www.snuh.org/health/nMedInfo/nView.do?medid=AA001338"
+    },
+    {
+      "topic": "피지선증식증",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Sebaceous hyperplasia",
+      "url": "https://dermnetnz.org/topics/sebaceous-hyperplasia"
+    },
+    {
+      "topic": "HPV 피부감염",
+      "source": "서울대학교병원",
+      "slot": "kr",
+      "title": "사마귀",
+      "url": "https://snuh.org/health/nMedInfo/nView.do?medid=AA000219"
+    },
+    {
+      "topic": "HPV 피부감염",
+      "source": "DermNet",
+      "slot": "intl",
+      "title": "Non-sexually acquired human papillomavirus infection",
+      "url": "https://dermnetnz.org/topics/non-sexually-acquired-human-papillomavirus-infection"
+    }
+  ]
+}
