@@ -15,7 +15,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = 'v2.1';
+  const VERSION = 'v3.0-geo';
   const IS_NODE = typeof module === 'object' && module.exports;
   const SITE = IS_NODE ? require('./site-config.js').SITE : root.HOO_SITE;
   if (!SITE) throw new Error('site-config.js 를 columns-core.js 보다 먼저 불러와야 합니다.');
@@ -62,6 +62,103 @@
     const z = n => String(n).padStart(2, '0');
     return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
   }
+
+  function koDate(iso){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '').trim());
+    return m ? `${Number(m[1])}년 ${Number(m[2])}월 ${Number(m[3])}일` : '';
+  }
+
+  /* ---------- GEO 작성원칙 (v1) ----------
+     새로 쓰는 컬럼(format: 'geo-v1')은 아래 순서·개수를 반드시 지킨다.
+       질문형 H1(제목) → 질문형 H2 8개(본문, 비교표 2개 포함) → 참고자료 3개 → FAQ 6개 → 감수 원장 박스 → 최종수정일
+     이미지 alt 에는 지역 키워드(SITE.shortName)가 반드시 들어간다 (없으면 자동으로 앞에 붙임). */
+  const GEO = {
+    FORMAT: 'geo-v1',
+    H2_COUNT: 8,
+    TABLE_COUNT: 2,
+    REF_COUNT: 3,
+    FAQ_COUNT: 6,
+    MIN_BODY_CHARS: 2500,
+    REF_SECTION: '이 글은 어떤 자료를 참고했나요?',
+    FAQ_SECTION: '환자분들이 자주 묻는 질문은 무엇인가요?',
+    // 의료법(제56조) 위반 소지가 큰 표현 — 발견되면 발행을 멈춘다
+    BANNED: ['완치', '100%', '부작용 없', '부작용이 없', '최고의', '최고 ', '유일한', '유일하게', '보장합니다', '확실하게 낫', '재발 없', '재발이 없', '흉터 없이', '흉터가 남지 않', '통증 없이', '무통'],
+  };
+  const isQuestion = s => /\?\s*$/.test(flat(unesc(stripTags(s))));
+  const region = () => String(SITE.shortName || '').trim();
+
+  // 지역 키워드가 없는 alt 에는 "춘천 " 처럼 지역명을 앞에 붙인다
+  function regionAlt(alt){
+    const a = flat(alt);
+    const r = region();
+    if (!r) return a;
+    if (!a) return `${r} ${SITE.bizName}`;
+    return a.indexOf(r) > -1 ? a : `${r} ${a}`;
+  }
+  // HTML 조각 안의 모든 <img alt> 를 지역 키워드가 들어가게 맞춘다 (alt 가 없으면 만들어 넣음)
+  function enforceAlts(html){
+    return String(html || '').replace(/<img\b[^>]*>/gi, tag => {
+      const m = /\salt="([^"]*)"/i.exec(tag);
+      if (m) return tag.replace(m[0], ` alt="${esc(regionAlt(unesc(m[1])))}"`);
+      return tag.replace(/<img\b/i, `<img alt="${esc(regionAlt(''))}"`);
+    });
+  }
+  function altsMissingRegion(html){
+    const r = region();
+    const out = [];
+    String(html || '').replace(/<img\b[^>]*>/gi, tag => {
+      const m = /\salt="([^"]*)"/i.exec(tag);
+      const alt = m ? unesc(m[1]) : '';
+      if (!r || alt.indexOf(r) < 0) out.push(alt || '(alt 없음)');
+      return tag;
+    });
+    return out;
+  }
+
+  // 본문 <h2> 에 목차용 id 를 붙이고 목차 목록을 돌려준다
+  function withH2Ids(html){
+    const toc = [];
+    let i = 0;
+    const out = String(html || '').replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/gi, (all, attrs, inner) => {
+      i++;
+      const id = 'q' + i;
+      toc.push({id: id, text: flat(unesc(stripTags(inner)))});
+      return `<h2 id="${id}"${attrs.replace(/\s*id="[^"]*"/i, '')}>${inner}</h2>`;
+    });
+    return {html: out, toc: toc};
+  }
+
+  // 관리 도구 입력칸 ↔ 데이터 변환 (한 줄에 하나)
+  //   FAQ      : "Q. 질문?" 다음 줄 "A. 답변"
+  //   참고자료 : "출처 | 문서 제목 | https://주소"
+  //   핵심 답변: 한 줄에 한 문장
+  function faqsToText(list){
+    return (list || []).map(f => `Q. ${flat(f.q)}\nA. ${flat(f.a)}`).join('\n\n');
+  }
+  function textToFaqs(text){
+    const out = [];
+    let cur = null;
+    String(text || '').replace(/\r\n/g, '\n').split('\n').forEach(line => {
+      const t = line.trim();
+      let m;
+      if ((m = /^Q[.:)]?\s*(.+)$/i.exec(t))) { cur = {q: m[1].trim(), a: ''}; out.push(cur); }
+      else if ((m = /^A[.:)]?\s*(.*)$/i.exec(t)) && cur) { cur.a = (cur.a ? cur.a + ' ' : '') + m[1].trim(); }
+      else if (t && cur) { cur.a = (cur.a ? cur.a + ' ' : '') + t; }
+    });
+    return out;
+  }
+  function refsToText(list){
+    return (list || []).map(r => [r.source, r.title, r.url].map(flat).join(' | ')).join('\n');
+  }
+  function textToRefs(text){
+    return String(text || '').replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+      const parts = l.split('|').map(s => s.trim());
+      const url = parts.find(p => /^https?:\/\//i.test(p)) || '';
+      const rest = parts.filter(p => p !== url);
+      return {source: rest[0] || '', title: rest.slice(1).join(' | ') || rest[0] || '', url: url};
+    });
+  }
+  const linesToList = text => String(text || '').replace(/\r\n/g, '\n').split('\n').map(s => s.replace(/^[-*•]\s*/, '').trim()).filter(Boolean);
 
   /* ---------- 본문 나누기 / 본문 중간 사진 ---------- */
 
@@ -130,7 +227,7 @@
 
     const blocks = splitBodyBlocks(col.body);
     const figureFor = im => {
-      const alt = esc(im.alt || '');
+      const alt = esc(regionAlt(im.alt || ''));
       const cap = (im.caption || '').trim();
       return `
 <figure>
@@ -277,6 +374,21 @@
       .map(im => toAbsoluteImage(im.src, base))
       .filter(Boolean);
     const schemaImages = [imgAbs, ...bodyImgAbs].filter((v, i, arr) => arr.indexOf(v) === i);
+    // 수정일은 발행일보다 앞설 수 없다 (예약 발행 흔적 방지)
+    const modified = col.dateModified && col.dateModified > col.datePublished ? col.dateModified : col.datePublished;
+    const faqs = (col.faqs || []).filter(f => flat(f.q) && flat(f.a));
+    const refs = (col.references || []).filter(r => flat(r.url) || flat(r.title));
+    const summary = (col.summary || []).map(flat).filter(Boolean);
+    const RV = SITE.reviewer || {};
+    const reviewerName = RV.name || SITE.doctor;
+    const physician = {
+      "@type": "Physician",
+      "name": reviewerName,
+      "jobTitle": RV.title || '대표원장',
+      "medicalSpecialty": "한의학",
+      "affiliation": {"@type": "MedicalClinic", "name": SITE.bizName},
+    };
+    const bodyParts = withH2Ids(enforceAlts(buildBodyWithImages(col)));
 
     const graph = {
       "@context": "https://schema.org",
@@ -288,14 +400,14 @@
           "url": url,
           "image": schemaImages.length > 1 ? schemaImages : imgAbs,
           "datePublished": col.datePublished,
-          "dateModified": col.dateModified || col.datePublished,
+          "dateModified": modified,
+          "lastReviewed": modified,
           "inLanguage": "ko",
           "about": {"@type": "MedicalCondition", "name": SITE.aboutCondition},
-          "author": {
-            "@type": "Physician",
-            "name": SITE.doctor,
-            "affiliation": {"@type": "MedicalClinic", "name": SITE.bizName},
-          },
+          "author": physician,
+          "reviewedBy": physician,
+          ...(refs.length ? {"citation": refs.map(r => ({"@type": "CreativeWork", "name": flat(r.title), "publisher": flat(r.source), "url": flat(r.url)}))} : {}),
+          ...(summary.length ? {"abstract": summary.join(' ')} : {}),
           "publisher": {
             "@type": "MedicalClinic",
             "name": SITE.bizName,
@@ -318,8 +430,58 @@
             {"@type": "ListItem", "position": 3, "name": col.title, "item": url},
           ],
         },
+        ...(faqs.length ? [{
+          "@type": "FAQPage",
+          "@id": url + '#faq',
+          "mainEntity": faqs.map(f => ({
+            "@type": "Question",
+            "name": flat(f.q),
+            "acceptedAnswer": {"@type": "Answer", "text": flat(f.a)},
+          })),
+        }] : []),
       ],
     };
+
+    const sectionRefs = refs.length ? `
+      <section class="geo-refs" aria-labelledby="refs-title">
+        <h2 id="refs-title">${esc(GEO.REF_SECTION)}</h2>
+        <ol>
+${refs.map(r => `          <li><a href="${esc(flat(r.url))}" target="_blank" rel="noopener nofollow">${esc(flat(r.source))}${flat(r.title) && flat(r.title) !== flat(r.source) ? ' — ' + esc(flat(r.title)) : ''}</a></li>`).join('\n')}
+        </ol>
+      </section>` : '';
+    const sectionFaq = faqs.length ? `
+      <section class="geo-faq" id="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">${esc(GEO.FAQ_SECTION)}</h2>
+${faqs.map(f => `        <details class="faq-item"><summary>${esc(flat(f.q))}</summary><p>${esc(flat(f.a))}</p></details>`).join('\n')}
+      </section>` : '';
+    const reviewerPhoto = RV.photo || SITE.defaultImage;
+    const sectionReviewer = `
+      <aside class="geo-reviewer" aria-label="감수 원장">
+        <img src="${esc(toColumnRelative(reviewerPhoto))}" alt="${esc(regionAlt(`${SITE.bizName} ${reviewerName} ${RV.title || '대표원장'}`))}" width="88" height="88" loading="lazy">
+        <div>
+          <p class="geo-reviewer-label">감수 원장</p>
+          <p class="geo-reviewer-name">${esc(reviewerName)} ${esc(RV.title || '대표원장')} <span>(${esc(RV.license || '한의사')})</span></p>
+          <p class="geo-reviewer-bio">${esc(RV.bio || `${SITE.bizName} ${reviewerName} ${RV.title || '대표원장'}`)}</p>
+          <p class="geo-reviewer-note">이 글은 ${esc(SITE.bizName)} ${esc(reviewerName)} ${esc(RV.title || '대표원장')}이 진료 경험과 아래 참고자료를 바탕으로 작성·감수했습니다.</p>
+        </div>
+      </aside>`;
+    const sectionModified = `
+      <p class="geo-modified">최종 수정일 <time datetime="${esc(modified)}">${esc(koDate(modified))}</time></p>`;
+    const sectionSummary = summary.length ? `
+    <div class="geo-answer" role="note" aria-label="핵심 답변">
+      <p class="geo-answer-label">핵심 답변</p>
+      <ul>
+${summary.map(s => `        <li>${esc(s)}</li>`).join('\n')}
+      </ul>
+    </div>` : '';
+    const sectionToc = bodyParts.toc.length >= 3 ? `
+    <nav class="geo-toc" aria-label="목차">
+      <p class="geo-answer-label">이 글에서 답하는 질문</p>
+      <ol>
+${bodyParts.toc.map(t => `        <li><a href="#${t.id}">${esc(t.text)}</a></li>`).join('\n')}${faqs.length ? `
+        <li><a href="#faq">${esc(GEO.FAQ_SECTION)}</a></li>` : ''}
+      </ol>
+    </nav>` : '';
 
     const navLinks = [
       ['../index.html#about', '편평사마귀란'],
@@ -363,7 +525,7 @@
 <meta property="og:image" content="${esc(imgAbs)}">
 <meta property="og:locale" content="ko_KR">
 <meta property="article:published_time" content="${esc(col.datePublished)}">
-<meta property="article:modified_time" content="${esc(col.dateModified || col.datePublished)}">
+<meta property="article:modified_time" content="${esc(modified)}">
 <meta property="article:author" content="${esc(SITE.doctor)}">
 
 <meta name="twitter:card" content="${esc(SITE.twitterCard)}">
@@ -411,6 +573,30 @@
   .article-body figure img { width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 12px 32px rgba(13,13,13,0.08); display: block; }
   .article-body figcaption { margin-top: 0.7rem; font-size: 0.8125rem; color: #8a8a8a; line-height: 1.6; text-align: center; }
   .article-body > img { width: 100%; height: auto; border-radius: 1rem; margin: 2.25rem 0; display: block; }
+  .article-body ol { margin: 1rem 0 1.5rem; padding-left: 1.2rem; list-style: decimal; color: #5b5b5b; line-height: 1.9; }
+  .article-body table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.9rem; }
+  .article-body caption { caption-side: top; text-align: left; font-weight: 700; color: #0d0d0d; padding-bottom: 0.6rem; }
+  .article-body th, .article-body td { border: 1px solid #d9d9d9; padding: 0.65rem 0.75rem; text-align: left; vertical-align: top; line-height: 1.6; }
+  .article-body th { background: #eeece5; color: #0d0d0d; font-weight: 700; }
+  .article-body td { color: #5b5b5b; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .geo-answer, .geo-toc { margin-top: 2rem; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.25rem 1.5rem; background: #faf9f6; }
+  .geo-answer ul { list-style: disc; padding-left: 1.1rem; color: #242522; line-height: 1.8; }
+  .geo-toc ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-toc a:hover { color: #b79e6c; }
+  .geo-answer-label, .geo-reviewer-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; color: #b79e6c; margin-bottom: 0.5rem; }
+  .geo-refs h2, .geo-faq h2 { font-size: 1.25rem; font-weight: 800; margin-top: 3rem; margin-bottom: 0.75rem; }
+  .geo-refs ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-refs a { text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+  .geo-faq .faq-item { border-bottom: 1px solid #d9d9d9; padding: 1rem 0; }
+  .geo-faq summary { font-weight: 700; cursor: pointer; line-height: 1.6; }
+  .geo-faq .faq-item p { margin-top: 0.6rem; color: #5b5b5b; line-height: 1.85; }
+  .geo-reviewer { margin-top: 3rem; display: flex; gap: 1.25rem; align-items: flex-start; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.5rem; }
+  .geo-reviewer img { width: 88px; height: 88px; border-radius: 9999px; object-fit: cover; object-position: top; flex-shrink: 0; }
+  .geo-reviewer-name { font-weight: 800; }
+  .geo-reviewer-name span { font-weight: 500; color: #5b5b5b; font-size: 0.875rem; }
+  .geo-reviewer-bio, .geo-reviewer-note { margin-top: 0.4rem; font-size: 0.875rem; color: #5b5b5b; line-height: 1.7; }
+  .geo-modified { margin-top: 1.25rem; font-size: 0.875rem; color: #5b5b5b; text-align: right; }
 </style>
 
 <script type="application/ld+json">
@@ -471,13 +657,17 @@ ${mobileNav}
 
     <p class="eyebrow text-gold text-sm font-bold">${esc(col.category)}</p>
     <h1 class="mt-2 text-2xl md:text-4xl font-extrabold leading-tight">${esc(col.title)}</h1>
-    <p class="mt-4 text-sm text-muted">${esc(col.datePublished)} · ${esc(SITE.bizName)} ${esc(SITE.doctor)} 대표원장</p>
+    <p class="mt-4 text-sm text-muted">작성 <time datetime="${esc(col.datePublished)}">${esc(col.datePublished)}</time> · ${esc(SITE.bizName)} ${esc(reviewerName)} ${esc(RV.title || '대표원장')}</p>
 
-    <img src="${esc(imgRel)}" alt="${esc(col.title)}" class="w-full rounded-2xl shadow-soft object-cover${SITE.photoClass} aspect-[16/9] mt-8">
+    <img src="${esc(imgRel)}" alt="${esc(regionAlt(col.imageAlt || col.title))}" class="w-full rounded-2xl shadow-soft object-cover${SITE.photoClass} aspect-[16/9] mt-8">
+${sectionSummary}${sectionToc}
 
     <div class="article-body mt-10">
-${buildBodyWithImages(col)}
+<!-- body:start -->
+${bodyParts.html.replace(/<table\b[\s\S]*?<\/table>/gi, t => '<div class="table-wrap">' + t + '</div>')}
+<!-- body:end -->
     </div>
+${sectionRefs}${sectionFaq}${sectionReviewer}${sectionModified}
 
     <p class="mt-10 text-xs text-muted leading-relaxed border-t border-line pt-6">
       본 컬럼은 일반적인 의학 정보 제공을 목적으로 작성되었으며, 특정 치료 효과를 보장하지 않습니다.
@@ -495,10 +685,10 @@ ${buildBodyWithImages(col)}
 <section class="py-24 bg-point text-white text-center">
   <div class="max-w-3xl mx-auto px-6">
     <p class="eyebrow text-gold text-sm font-bold">HOO KOREAN MEDICAL CLINIC</p>
-    <h2 class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
+    <p class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
       " 궁금한 점이 있다면 편하게 물어보세요.<br>
       상담은 진단부터 시작합니다. "
-    </h2>
+    </p>
     <a href="tel:${esc(SITE.phone)}" class="inline-block mt-8 rounded-full bg-gold text-point font-bold px-8 py-3.5">지금 전화 상담하기</a>
   </div>
 </section>
@@ -533,12 +723,12 @@ ${buildBodyWithImages(col)}
     const close = '<' + '!-- COLUMN CARD END --' + '>';
     return list.map(c => `      ${open}
       <a href="columns/${esc(c.slug)}.html" class="group block rounded-2xl border border-line overflow-hidden hover:shadow-soft transition">
-        <img src="${esc(c.image)}" alt="${esc(c.title)}" class="w-full aspect-[4/3] object-cover${SITE.photoClass}">
+        <img src="${esc(c.image)}" alt="${esc(regionAlt(c.title))}" class="w-full aspect-[4/3] object-cover${SITE.photoClass}">
         <div class="p-6">
           <p class="text-xs text-gold font-bold">${esc(c.category)}</p>
           <h2 class="mt-2 font-bold leading-snug group-hover:text-gold transition">${esc(c.title)}</h2>
           <p class="mt-3 text-sm text-muted leading-relaxed line-clamp-3">${esc(c.cardSummary)}</p>
-          <p class="mt-4 text-xs text-muted">${esc(c.datePublished)} · ${esc(SITE.doctor)} 대표원장</p>
+          <p class="mt-4 text-xs text-muted"><time datetime="${esc(c.datePublished)}">${esc(c.datePublished)}</time> · ${esc(SITE.doctor)} 대표원장</p>
         </div>
       </a>
       ${close}`).join('\n\n');
@@ -635,7 +825,14 @@ ${kept.concat(cols).join('\n')}
       dateModified: s(c.dateModified).trim(),
       image: s(c.image).trim() || SITE.defaultImage,
       schemaType: s(c.schemaType) || 'MedicalWebPage',
+      format: s(c.format).trim(),
+      imageAlt: s(c.imageAlt),
+      summary: (Array.isArray(c.summary) ? c.summary : linesToList(c.summary)).map(x => flat(x)).filter(Boolean),
       body: s(c.body),
+      faqs: (Array.isArray(c.faqs) ? c.faqs : []).map(f => ({q: flat(f && f.q), a: flat(f && f.a)})).filter(f => f.q || f.a),
+      references: (Array.isArray(c.references) ? c.references : []).map(r => (typeof r === 'string'
+        ? {source: '', title: flat(stripTags(r)), url: ((/href="([^"]+)"/.exec(r) || [])[1] || '')}
+        : {source: flat(r && r.source), title: flat(r && r.title), url: flat(r && r.url)})).filter(r => r.url || r.title),
       bodyImages: (Array.isArray(c.bodyImages) ? c.bodyImages : []).map(im => ({
         src: s(im && im.src).trim(),
         alt: s(im && im.alt),
@@ -677,6 +874,13 @@ ${kept.concat(cols).join('\n')}
       seen.add(c.slug);
     });
     return j.columns.map(cardFields);
+  }
+
+  // 목록·카드는 항상 최신 글이 위 (발행일 내림차순, 같은 날이면 기존 순서 유지)
+  function sortNewest(list){
+    return list.map((c, i) => ({c, i}))
+      .sort((a, b) => String(b.c.datePublished).localeCompare(String(a.c.datePublished)) || a.i - b.i)
+      .map(x => x.c);
   }
 
   function serializeIndex(list){
@@ -730,9 +934,57 @@ ${kept.concat(cols).join('\n')}
     if (!c.description.trim()) warnings.push('SEO 메타 설명이 비어 있습니다.');
     c.bodyImages.forEach((im, i) => {
       if (!im.src) warnings.push(`본문 사진 ${i + 1}: 사진 경로가 비어 있어 빠집니다.`);
-      else if (!im.alt.trim()) warnings.push(`본문 사진 ${i + 1}: 알트 태그가 비어 있습니다.`);
+      else if (!im.alt.trim()) warnings.push(`본문 사진 ${i + 1}: 알트 태그가 비어 있습니다. (지역명 "${region()}"은 자동으로 붙습니다)`);
     });
+    const geo = validateGeo(c);
+    if (c.format === GEO.FORMAT) geo.forEach(e => errors.push('[GEO] ' + e));
+    else if (geo.length) warnings.push(`GEO 작성원칙(질문형 H1·H2 8개·비교표 2·참고자료 3·FAQ 6) 기준 ${geo.length}개 항목이 맞지 않습니다: ` + geo.slice(0, 3).join(' / ') + (geo.length > 3 ? ' …' : ''));
     return {errors, warnings};
+  }
+
+  // GEO 작성원칙 검사 — 문제 목록(문자열 배열)을 돌려준다. 빈 배열이면 통과.
+  function validateGeo(col){
+    const c = normalizeColumn(col);
+    const out = [];
+    const r = region();
+    const title = flat(c.title);
+    if (!isQuestion(title)) out.push('제목(H1)이 질문형(?로 끝남)이 아닙니다.');
+    if (r && title.indexOf(r) < 0) out.push(`제목에 지역 키워드 "${r}"가 없습니다.`);
+    if (/\d{4}-?\d{2}-?\d{2}|20\d{2}/.test(c.slug)) out.push('파일명(주소)에 날짜·연도가 들어 있습니다.');
+    const h2s = [...c.body.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)].map(m => flat(unesc(stripTags(m[1]))));
+    if (h2s.length !== GEO.H2_COUNT) out.push(`본문 소제목(H2)이 ${h2s.length}개입니다 (정확히 ${GEO.H2_COUNT}개).`);
+    const notQ = h2s.filter(h => !isQuestion(h));
+    if (notQ.length) out.push(`질문형이 아닌 H2: ${notQ.map(h => '"' + h + '"').join(', ')}`);
+    if (/<h1\b/i.test(c.body)) out.push('본문에 <h1>이 있습니다 (H1은 제목 하나뿐).');
+    const tables = [...c.body.matchAll(/<table\b[\s\S]*?<\/table>/gi)].map(m => m[0]);
+    if (tables.length !== GEO.TABLE_COUNT) out.push(`비교표가 ${tables.length}개입니다 (정확히 ${GEO.TABLE_COUNT}개).`);
+    tables.forEach((t, i) => {
+      if (!/<caption\b/i.test(t)) out.push(`비교표 ${i + 1}에 <caption>(표 제목)이 없습니다.`);
+      if (!/<th\b/i.test(t)) out.push(`비교표 ${i + 1}에 <th>(머리글 칸)가 없습니다.`);
+    });
+    const plain = flat(unesc(stripTags(c.body)));
+    if (plain.length < GEO.MIN_BODY_CHARS) out.push(`본문이 짧습니다 (${plain.length}자, 최소 ${GEO.MIN_BODY_CHARS}자).`);
+    const refs = c.references;
+    if (refs.length !== GEO.REF_COUNT) out.push(`참고자료가 ${refs.length}개입니다 (정확히 ${GEO.REF_COUNT}개).`);
+    refs.forEach((x, i) => {
+      if (!/^https:\/\//.test(x.url)) out.push(`참고자료 ${i + 1}의 주소가 https 로 시작하지 않습니다.`);
+      if (!x.source) out.push(`참고자료 ${i + 1}의 출처(기관명)가 비었습니다.`);
+    });
+    const allowed = SITE.referenceSources || [];
+    if (allowed.length && refs.length) {
+      const missing = allowed.filter(src => !refs.some(x => x.source.indexOf(src) > -1));
+      if (missing.length) out.push(`참고자료에 꼭 들어가야 할 출처가 빠졌습니다: ${missing.join(', ')}`);
+    }
+    if (c.faqs.length !== GEO.FAQ_COUNT) out.push(`FAQ가 ${c.faqs.length}개입니다 (정확히 ${GEO.FAQ_COUNT}개).`);
+    c.faqs.forEach((f, i) => {
+      if (!isQuestion(f.q)) out.push(`FAQ ${i + 1} 질문이 ?로 끝나지 않습니다.`);
+      if (!f.a) out.push(`FAQ ${i + 1} 답변이 비었습니다.`);
+    });
+    if (!c.summary.length) out.push('핵심 답변(제목 바로 아래 2~3문장)이 비었습니다.');
+    const everything = [c.title, c.body, c.summary.join(' '), c.faqs.map(f => f.q + ' ' + f.a).join(' ')].join(' ');
+    const banned = GEO.BANNED.filter(w => everything.indexOf(w) > -1);
+    if (banned.length) out.push(`의료광고 금지 소지 표현: ${banned.map(w => '"' + w.trim() + '"').join(', ')}`);
+    return out;
   }
 
   /* ---------- 발행 계획 (병합) ---------- */
@@ -779,8 +1031,12 @@ ${kept.concat(cols).join('\n')}
         if (dup) {
           warnings.push({needsAck: true, text: `같은 제목의 글이 이미 홈페이지에 있습니다 (${dup.slug}). 같은 글을 두 번 올리는 것이 아니라면 체크해 주세요.`});
         }
-        if (!column.datePublished) column.datePublished = today;
-        column.dateModified = column.datePublished;
+        // 새 글의 발행일은 항상 "실제로 올리는 날" — 미래 날짜(예약)·과거 날짜 모두 쓰지 않는다
+        if (column.datePublished && column.datePublished !== today) {
+          warnings.push({text: `발행일 ${column.datePublished} 대신 실제 발행하는 오늘(${today})로 올립니다. (예약·소급 날짜는 쓰지 않습니다)`});
+        }
+        column.datePublished = today;
+        column.dateModified = today;
         after = before.concat([cardFields(column)]);
         summary.added.push(brief(column));
       } else {
@@ -792,6 +1048,7 @@ ${kept.concat(cols).join('\n')}
           warnings.push({needsAck: true, text: '이 글은 편집을 시작한 뒤에 다른 곳(다른 기기·브라우저)에서 먼저 수정·발행되었습니다. 계속하면 그 수정 내용이 지금 화면의 내용으로 바뀝니다. 괜찮으면 체크해 주세요.'});
         }
         column.dateModified = today;
+        if (column.datePublished > today) column.datePublished = today;
         after = before.map(c => (c.slug === column.slug ? cardFields(column) : c));
         summary.updated.push(brief(column));
       }
@@ -831,6 +1088,7 @@ ${kept.concat(cols).join('\n')}
       warnings.push({text: `목록에 없는 컬럼 파일이 ${orphans.length}개 있습니다 (${orphans.join(', ')}). 지우지 않고 그대로 둡니다.`});
     }
 
+    after = sortNewest(after);
     changes.push({path: PATHS.index, content: serializeIndex(after)});
     changes.push({path: PATHS.list, content: replaceCards(snap.texts.list, buildColumnCards(after))});
     changes.push({path: PATHS.sitemap, content: mergeSitemap(snap.texts.sitemap, after, today)});
@@ -842,6 +1100,12 @@ ${kept.concat(cols).join('\n')}
   /* ---------- 이미 올라가 있는 컬럼 페이지에서 원본 값 되살리기 ---------- */
 
   function articleBody(html){
+    const marked = /<!-- body:start -->\n?([\s\S]*?)\n?<!-- body:end -->/.exec(html);
+    if (marked) {
+      return marked[1]
+        .replace(/<div class="table-wrap">(<table\b[\s\S]*?<\/table>)<\/div>/gi, '$1')
+        .replace(/<h2 id="q\d+"/gi, '<h2');
+    }
     const open = /<div class="article-body[^"]*">\n?/.exec(html);
     if (!open) return '';
     const from = open.index + open[0].length;
@@ -900,6 +1164,8 @@ ${kept.concat(cols).join('\n')}
     buildColumnPage, buildColumnCards, replaceCards, mergeSitemap, mergeLlms,
     normalizeColumn, cardFields, serializeData, parseIndex, serializeIndex,
     collectSlugs, nextSlug, validateColumn, planPublish, parseColumnHtml,
+    GEO, koDate, regionAlt, enforceAlts, altsMissingRegion, withH2Ids, validateGeo, sortNewest,
+    faqsToText, textToFaqs, refsToText, textToRefs, linesToList,
   };
   if (IS_NODE) module.exports = api;
   else root.HooColumns = api;

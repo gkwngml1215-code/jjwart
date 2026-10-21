@@ -774,6 +774,7 @@ function addColumn(){
       dateModified: t,
       image: SITE.defaultImage,
       schemaType: 'MedicalWebPage',
+      format: 'geo-v1',
       body: '',
       bodyImages: [],
     }),
@@ -800,7 +801,10 @@ function renderColumnFields(){
   const col = current.data;
   const fields = [
     {key: 'slug', label: current.isNew ? '파일명 (홈페이지에 있는 파일과 겹치지 않게 자동으로 정했습니다)' : '파일명 (홈페이지 주소라서 바꿀 수 없습니다)', type: 'text', readOnly: !current.isNew},
-    {key: 'title', label: '제목', type: 'text', placeholder: '예: 편평사마귀, 왜 자꾸 번질까요?'},
+    {key: 'format', label: '작성원칙 (GEO 원칙으로 쓴 글은 geo-v1 — 발행 전에 구조를 엄격하게 검사합니다)', type: 'select', options: ['', 'geo-v1']},
+    {key: 'title', label: '제목 (질문형, 지역명 포함 — 예: ' + SITE.shortName + '에서 편평사마귀가 자꾸 번지는 이유는?)', type: 'text', placeholder: '예: 편평사마귀, 왜 자꾸 번질까요?'},
+    {key: 'summary', label: '핵심 답변 (제목 바로 아래 · 한 줄에 한 문장, 2~3줄)', type: 'textarea', rows: 3,
+      toText: v => (v || []).join('\n'), fromText: t => C.linesToList(t)},
     {key: 'category', label: '카테고리 라벨 (예: 편평사마귀)', type: 'text'},
     {key: 'cardSummary', label: '목록 카드 요약 (2~3줄)', type: 'textarea', rows: 2},
     {key: 'description', label: 'SEO 메타 설명 (description)', type: 'textarea', rows: 3},
@@ -808,8 +812,13 @@ function renderColumnFields(){
     {key: 'datePublished', label: '발행일', type: 'date'},
     {key: 'dateModified', label: current.isNew ? '수정일 (발행일과 같게 자동으로 들어갑니다)' : '수정일 (발행하면 오늘 날짜로 자동으로 바뀝니다)', type: 'date', readOnly: true},
     {key: 'image', label: '대표 이미지 경로 (프로젝트 루트 기준)', type: 'text'},
+    {key: 'imageAlt', label: '대표 이미지 알트 (비우면 제목 사용 · 지역명 "' + SITE.shortName + '"은 자동으로 붙습니다)', type: 'text'},
     {key: 'schemaType', label: 'GEO 스키마 타입', type: 'select', options: ['MedicalWebPage', 'Article', 'BlogPosting']},
-    {key: 'body', label: '본문 HTML (&lt;h2&gt; &lt;p&gt; &lt;ul&gt; 사용 — 태그 없이 붙여 넣었다면 아래 [본문 자동 정리])', type: 'textarea', rows: 12, placeholder: '<p>첫 문단</p>\n<h2>소제목</h2>\n<p>내용</p>'},
+    {key: 'body', label: '본문 HTML (&lt;h2&gt; &lt;p&gt; &lt;ul&gt; &lt;table&gt; 사용 — GEO 원칙: 질문형 &lt;h2&gt; 8개, &lt;caption&gt; 있는 비교표 2개)', type: 'textarea', rows: 12, placeholder: '<p>첫 문단</p>\n<h2>소제목은 질문형으로?</h2>\n<p>내용</p>'},
+    {key: 'references', label: '참고자료 3개 (한 줄에 하나: 출처 | 문서 제목 | https://주소)', type: 'textarea', rows: 3,
+      toText: v => C.refsToText(v), fromText: t => C.textToRefs(t)},
+    {key: 'faqs', label: 'FAQ 6개 (Q. 질문? 다음 줄에 A. 답변)', type: 'textarea', rows: 8,
+      toText: v => C.faqsToText(v), fromText: t => C.textToFaqs(t)},
   ];
 
   fields.forEach(f => {
@@ -830,7 +839,7 @@ function renderColumnFields(){
       f.options.forEach(o => {
         const opt = document.createElement('option');
         opt.value = o;
-        opt.textContent = o;
+        opt.textContent = o || '기존 형식 (검사 느슨)';
         input.appendChild(opt);
       });
     } else {
@@ -843,10 +852,10 @@ function renderColumnFields(){
     input.dataset.field = f.key;
     if (f.placeholder) input.placeholder = f.placeholder;
     if (f.readOnly) input.readOnly = true;
-    input.value = col[f.key] || '';
+    input.value = f.toText ? f.toText(col[f.key]) : (col[f.key] || '');
 
     input.addEventListener('input', () => {
-      let v = input.value;
+      let v = f.fromText ? f.fromText(input.value) : input.value;
       if (f.key === 'slug') {
         v = v.toLowerCase().replace(/[^a-z0-9-]/g, '');
         if (v !== input.value) input.value = v;

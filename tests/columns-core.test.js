@@ -51,7 +51,8 @@ test('새 글 추가: 기존 9개는 그대로, 1개만 늘어 10개', () => {
   const snap = makeSnap(9);
   const plan = C.planPublish(snap, {type: 'upsert', column: draft('column-10'), isNew: true}, TODAY);
   assert.strictEqual(plan.after.length, 10);
-  assert.deepStrictEqual(indexSlugs(plan), snap.index.map(c => c.slug).concat('column-10'));
+  // 새 글은 오늘 날짜로 올라가 목록 맨 위(최신순)에 온다
+  assert.deepStrictEqual(indexSlugs(plan), ['column-10'].concat(snap.index.map(c => c.slug)));
   assert.deepStrictEqual(cardSlugs(plan), indexSlugs(plan));
   assert.strictEqual(plan.summary.added.length, 1);
   assert.strictEqual(plan.summary.kept.length, 9);
@@ -264,14 +265,35 @@ console.log('\n[9] 페이지 왕복 / 지점 값');
 test('본문 중간 사진: 페이지 → 원본값 → 페이지 가 똑같이 되돌아온다', () => {
   const col = C.normalizeColumn(Object.assign(draft('column-03'), {
     bodyImages: [
-      {src: 'assets/images/a.jpg', alt: '맨 앞 사진', caption: '', after: -1},
-      {src: 'assets/images/b.jpg', alt: '첫 문단 뒤', caption: '캡션', after: 0},
+      // alt 에는 지역명이 자동으로 붙으므로, 왕복 비교용 값은 처음부터 지역명을 넣어 둔다
+      {src: 'assets/images/a.jpg', alt: C.SITE.shortName + ' 맨 앞 사진', caption: '', after: -1},
+      {src: 'assets/images/b.jpg', alt: C.SITE.shortName + ' 첫 문단 뒤', caption: '캡션', after: 0},
     ],
   }));
   const page = C.buildColumnPage(col);
   const back = C.parseColumnHtml(page, 'column-03');
   assert.deepStrictEqual(back.bodyImages, col.bodyImages);
   assert.strictEqual(C.buildColumnPage(Object.assign(back, {cardSummary: col.cardSummary})), page);
+});
+
+test('alt 에 지역명이 없으면 자동으로 앞에 붙는다 (대표 사진·본문 사진·감수 원장 사진 모두)', () => {
+  const col = C.normalizeColumn(Object.assign(draft('column-05'), {
+    body: '<p>문단</p><p><img src="../assets/images/x.jpg" alt="목 편평사마귀"></p>',
+    bodyImages: [{src: 'assets/images/a.jpg', alt: '시술 장면', caption: '', after: 0}],
+  }));
+  const page = C.buildColumnPage(col);
+  const alts = [...page.matchAll(/<img\b[^>]*\salt="([^"]*)"/g)].map(m => m[1]);
+  assert.ok(alts.length >= 4);
+  alts.forEach(a => assert.ok(a.indexOf(C.SITE.shortName) > -1, 'alt 에 지역명 없음: ' + a));
+});
+
+test('수정일은 발행일보다 앞설 수 없다 · 새 글은 오늘 날짜로만 발행', () => {
+  const page = C.buildColumnPage(C.normalizeColumn(Object.assign(draft('column-06'), {datePublished: '2026-10-20', dateModified: '2026-09-27'})));
+  assert.ok(page.includes('"dateModified": "2026-10-20"'));
+  assert.ok(!page.includes('2026-09-27'));
+  const plan = C.planPublish(makeSnap(2), {type: 'upsert', column: Object.assign(draft('column-03'), {datePublished: '2030-01-01'}), isNew: true}, TODAY);
+  assert.strictEqual(plan.column.datePublished, TODAY);
+  assert.strictEqual(plan.column.dateModified, TODAY);
 });
 
 test('페이지에 이 지점의 주소·전화·카카오·저작권이 들어간다 (다른 지점 값 섞임 없음)', () => {

@@ -27,6 +27,14 @@
     github: { owner: 'gkwngml1215-code', repo: 'jjwart', branch: 'main' },
     tokenKey: 'hoo-admin-gh-token',     // 이 브라우저에 GitHub 키를 저장하는 이름
     storagePrefix: 'hoojeonju',         // 이 브라우저에 설정·임시저장본을 저장하는 이름 앞부분
+    // 컬럼 하단 "감수 원장" 박스 · 구조화 데이터(reviewedBy)에 쓰는 값
+    reviewer: {
+      name: '허정위', title: '대표원장', license: '한의사',
+      photo: 'assets/images/doctor-heo.jpg',
+      bio: '대전대학교 한의과대학 졸업 · 대한 한방피부과학회 정회원 · 대한 트랜스테라피 연구회 정회원 · 前 익산한방병원 진료원장',
+    },
+    // GEO 작성원칙: 참고자료 3개에 반드시 들어가야 하는 출처 (발행 전 검사)
+    referenceSources: ['대한피부과학회', 'DermNet', 'NHS'],
   };
 
   // 1~7번 SEO 설정 기본값 (이 브라우저에 저장된 값이 없을 때 쓰임)
