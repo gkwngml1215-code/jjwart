@@ -67,6 +67,30 @@
   .article-body figure img { width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 12px 32px rgba(13,13,13,0.08); display: block; }
   .article-body figcaption { margin-top: 0.7rem; font-size: 0.8125rem; color: #8a8a8a; line-height: 1.6; text-align: center; }
   .article-body > img { width: 100%; height: auto; border-radius: 1rem; margin: 2.25rem 0; display: block; }
+  .article-body ol { margin: 1rem 0 1.5rem; padding-left: 1.2rem; list-style: decimal; color: #5b5b5b; line-height: 1.9; }
+  .article-body table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.9rem; }
+  .article-body caption { caption-side: top; text-align: left; font-weight: 700; color: #0d0d0d; padding-bottom: 0.6rem; }
+  .article-body th, .article-body td { border: 1px solid #d9d9d9; padding: 0.65rem 0.75rem; text-align: left; vertical-align: top; line-height: 1.6; }
+  .article-body th { background: #eeece5; color: #0d0d0d; font-weight: 700; }
+  .article-body td { color: #5b5b5b; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .geo-answer, .geo-toc { margin-top: 2rem; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.25rem 1.5rem; background: #faf9f6; }
+  .geo-answer ul { list-style: disc; padding-left: 1.1rem; color: #242522; line-height: 1.8; }
+  .geo-toc ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-toc a:hover { color: #b79e6c; }
+  .geo-answer-label, .geo-reviewer-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; color: #b79e6c; margin-bottom: 0.5rem; }
+  .geo-refs h2, .geo-faq h2 { font-size: 1.25rem; font-weight: 800; margin-top: 3rem; margin-bottom: 0.75rem; }
+  .geo-refs ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-refs a { text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+  .geo-faq .faq-item { border-bottom: 1px solid #d9d9d9; padding: 1rem 0; }
+  .geo-faq summary { font-weight: 700; cursor: pointer; line-height: 1.6; }
+  .geo-faq .faq-item p { margin-top: 0.6rem; color: #5b5b5b; line-height: 1.85; }
+  .geo-reviewer { margin-top: 3rem; display: flex; gap: 1.25rem; align-items: flex-start; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.5rem; }
+  .geo-reviewer img { width: 88px; height: 88px; border-radius: 9999px; object-fit: cover; object-position: top; flex-shrink: 0; }
+  .geo-reviewer-name { font-weight: 800; }
+  .geo-reviewer-name span { font-weight: 500; color: #5b5b5b; font-size: 0.875rem; }
+  .geo-reviewer-bio, .geo-reviewer-note { margin-top: 0.4rem; font-size: 0.875rem; color: #5b5b5b; line-height: 1.7; }
+  .geo-modified { margin-top: 1.25rem; font-size: 0.875rem; color: #5b5b5b; text-align: right; }
 </style>
 
 <script type="application/ld+json">
@@ -81,6 +105,7 @@
       "image": "https://jjhoowart.co.kr/assets/images/doctor-heo.jpg",
       "datePublished": "2026-09-07",
       "dateModified": "2026-09-07",
+      "lastReviewed": "2026-09-07",
       "inLanguage": "ko",
       "about": {
         "@type": "MedicalCondition",
@@ -89,6 +114,18 @@
       "author": {
         "@type": "Physician",
         "name": "허정위",
+        "jobTitle": "대표원장",
+        "medicalSpecialty": "한의학",
+        "affiliation": {
+          "@type": "MedicalClinic",
+          "name": "후한의원 전주점"
+        }
+      },
+      "reviewedBy": {
+        "@type": "Physician",
+        "name": "허정위",
+        "jobTitle": "대표원장",
+        "medicalSpecialty": "한의학",
         "affiliation": {
           "@type": "MedicalClinic",
           "name": "후한의원 전주점"
@@ -206,22 +243,44 @@
 
     <p class="eyebrow text-gold text-sm font-bold">치료 후 관리</p>
     <h1 class="mt-2 text-2xl md:text-4xl font-extrabold leading-tight">제거 후 재발을 줄이는 생활 관리</h1>
-    <p class="mt-4 text-sm text-muted">2026-09-07 · 후한의원 전주점 허정위 대표원장</p>
+    <p class="mt-4 text-sm text-muted">작성 <time datetime="2026-09-07">2026-09-07</time> · 후한의원 전주점 허정위 대표원장</p>
 
-    <img src="../assets/images/doctor-heo.jpg" alt="제거 후 재발을 줄이는 생활 관리" class="w-full rounded-2xl shadow-soft object-cover aspect-[16/9] mt-8">
+    <img src="../assets/images/doctor-heo.jpg" alt="전주 제거 후 재발을 줄이는 생활 관리" class="w-full rounded-2xl shadow-soft object-cover aspect-[16/9] mt-8">
+
+    <nav class="geo-toc" aria-label="목차">
+      <p class="geo-answer-label">이 글에서 답하는 질문</p>
+      <ol>
+        <li><a href="#q1">1. 시술 직후 3~7일: 상처 보호가 우선입니다</a></li>
+        <li><a href="#q2">2. 자외선 차단은 최소 한 달</a></li>
+        <li><a href="#q3">3. 면역력 관리가 재발률을 좌우합니다</a></li>
+      </ol>
+    </nav>
 
     <div class="article-body mt-10">
+<!-- body:start -->
 <p>제거 시술은 끝이 아니라 시작에 가깝습니다. 시술 이후 어떻게 관리하느냐에 따라 흉터와 색소침착, 그리고 재발 여부가 달라질 수 있습니다.</p>
 
-<h2>1. 시술 직후 3~7일: 상처 보호가 우선입니다</h2>
+<h2 id="q1">1. 시술 직후 3~7일: 상처 보호가 우선입니다</h2>
 <p>시술 부위가 아물기까지는 보통 3~7일 정도 걸립니다. 이 기간에는 항생 연고나 습윤 밴드로 부위를 보호해 주세요. 딱지가 생겼다면 손으로 떼지 말고 자연스럽게 떨어질 때까지 기다려야 합니다.</p>
 
-<h2>2. 자외선 차단은 최소 한 달</h2>
+<h2 id="q2">2. 자외선 차단은 최소 한 달</h2>
 <p>새로 올라온 피부는 색소침착에 취약합니다. 외출 시 자외선 차단제를 꼼꼼히 바르고, 가능하다면 물리적으로 가려 주는 것이 좋습니다.</p>
 
-<h2>3. 면역력 관리가 재발률을 좌우합니다</h2>
+<h2 id="q3">3. 면역력 관리가 재발률을 좌우합니다</h2>
 <p>편평사마귀는 바이러스성 질환이라, 겉으로 보이는 병변을 없애도 몸의 대응력이 떨어져 있으면 다시 올라올 수 있습니다.</p>
+<!-- body:end -->
     </div>
+
+      <aside class="geo-reviewer" aria-label="감수 원장">
+        <img src="../assets/images/doctor-heo.jpg" alt="후한의원 전주점 허정위 대표원장" width="88" height="88" loading="lazy">
+        <div>
+          <p class="geo-reviewer-label">감수 원장</p>
+          <p class="geo-reviewer-name">허정위 대표원장 <span>(한의사)</span></p>
+          <p class="geo-reviewer-bio">대전대학교 한의과대학 졸업 · 대한 한방피부과학회 정회원 · 대한 트랜스테라피 연구회 정회원 · 前 익산한방병원 진료원장</p>
+          <p class="geo-reviewer-note">이 글은 후한의원 전주점 허정위 대표원장이 진료 경험과 아래 참고자료를 바탕으로 작성·감수했습니다.</p>
+        </div>
+      </aside>
+      <p class="geo-modified">최종 수정일 <time datetime="2026-09-07">2026년 9월 7일</time></p>
 
     <p class="mt-10 text-xs text-muted leading-relaxed border-t border-line pt-6">
       본 컬럼은 일반적인 의학 정보 제공을 목적으로 작성되었으며, 특정 치료 효과를 보장하지 않습니다.
@@ -239,10 +298,10 @@
 <section class="py-24 bg-point text-white text-center">
   <div class="max-w-3xl mx-auto px-6">
     <p class="eyebrow text-gold text-sm font-bold">HOO KOREAN MEDICAL CLINIC</p>
-    <h2 class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
+    <p class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
       " 궁금한 점이 있다면 편하게 물어보세요.<br>
       상담은 진단부터 시작합니다. "
-    </h2>
+    </p>
     <a href="tel:063-251-1050" class="inline-block mt-8 rounded-full bg-gold text-point font-bold px-8 py-3.5">지금 전화 상담하기</a>
   </div>
 </section>

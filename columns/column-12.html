@@ -67,6 +67,30 @@
   .article-body figure img { width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 12px 32px rgba(13,13,13,0.08); display: block; }
   .article-body figcaption { margin-top: 0.7rem; font-size: 0.8125rem; color: #8a8a8a; line-height: 1.6; text-align: center; }
   .article-body > img { width: 100%; height: auto; border-radius: 1rem; margin: 2.25rem 0; display: block; }
+  .article-body ol { margin: 1rem 0 1.5rem; padding-left: 1.2rem; list-style: decimal; color: #5b5b5b; line-height: 1.9; }
+  .article-body table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.9rem; }
+  .article-body caption { caption-side: top; text-align: left; font-weight: 700; color: #0d0d0d; padding-bottom: 0.6rem; }
+  .article-body th, .article-body td { border: 1px solid #d9d9d9; padding: 0.65rem 0.75rem; text-align: left; vertical-align: top; line-height: 1.6; }
+  .article-body th { background: #eeece5; color: #0d0d0d; font-weight: 700; }
+  .article-body td { color: #5b5b5b; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .geo-answer, .geo-toc { margin-top: 2rem; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.25rem 1.5rem; background: #faf9f6; }
+  .geo-answer ul { list-style: disc; padding-left: 1.1rem; color: #242522; line-height: 1.8; }
+  .geo-toc ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-toc a:hover { color: #b79e6c; }
+  .geo-answer-label, .geo-reviewer-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; color: #b79e6c; margin-bottom: 0.5rem; }
+  .geo-refs h2, .geo-faq h2 { font-size: 1.25rem; font-weight: 800; margin-top: 3rem; margin-bottom: 0.75rem; }
+  .geo-refs ol { list-style: decimal; padding-left: 1.2rem; color: #5b5b5b; line-height: 1.9; font-size: 0.9rem; }
+  .geo-refs a { text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+  .geo-faq .faq-item { border-bottom: 1px solid #d9d9d9; padding: 1rem 0; }
+  .geo-faq summary { font-weight: 700; cursor: pointer; line-height: 1.6; }
+  .geo-faq .faq-item p { margin-top: 0.6rem; color: #5b5b5b; line-height: 1.85; }
+  .geo-reviewer { margin-top: 3rem; display: flex; gap: 1.25rem; align-items: flex-start; border: 1px solid #d9d9d9; border-radius: 1rem; padding: 1.5rem; }
+  .geo-reviewer img { width: 88px; height: 88px; border-radius: 9999px; object-fit: cover; object-position: top; flex-shrink: 0; }
+  .geo-reviewer-name { font-weight: 800; }
+  .geo-reviewer-name span { font-weight: 500; color: #5b5b5b; font-size: 0.875rem; }
+  .geo-reviewer-bio, .geo-reviewer-note { margin-top: 0.4rem; font-size: 0.875rem; color: #5b5b5b; line-height: 1.7; }
+  .geo-modified { margin-top: 1.25rem; font-size: 0.875rem; color: #5b5b5b; text-align: right; }
 </style>
 
 <script type="application/ld+json">
@@ -84,6 +108,7 @@
       ],
       "datePublished": "2026-10-06",
       "dateModified": "2026-10-06",
+      "lastReviewed": "2026-10-06",
       "inLanguage": "ko",
       "about": {
         "@type": "MedicalCondition",
@@ -92,6 +117,18 @@
       "author": {
         "@type": "Physician",
         "name": "허정위",
+        "jobTitle": "대표원장",
+        "medicalSpecialty": "한의학",
+        "affiliation": {
+          "@type": "MedicalClinic",
+          "name": "후한의원 전주점"
+        }
+      },
+      "reviewedBy": {
+        "@type": "Physician",
+        "name": "허정위",
+        "jobTitle": "대표원장",
+        "medicalSpecialty": "한의학",
         "affiliation": {
           "@type": "MedicalClinic",
           "name": "후한의원 전주점"
@@ -209,12 +246,29 @@
 
     <p class="eyebrow text-gold text-sm font-bold">편평사마귀</p>
     <h1 class="mt-2 text-2xl md:text-4xl font-extrabold leading-tight">편평사마귀 만졌을 때 까끔거림 악화된건가요?[후한의원 전주점 칼럼]</h1>
-    <p class="mt-4 text-sm text-muted">2026-10-06 · 후한의원 전주점 허정위 대표원장</p>
+    <p class="mt-4 text-sm text-muted">작성 <time datetime="2026-10-06">2026-10-06</time> · 후한의원 전주점 허정위 대표원장</p>
 
     <img src="../assets/images/doctor-heo.jpg" alt="편평사마귀 만졌을 때 까끔거림 악화된건가요?[후한의원 전주점 칼럼]" class="w-full rounded-2xl shadow-soft object-cover aspect-[16/9] mt-8">
 
+    <nav class="geo-toc" aria-label="목차">
+      <p class="geo-answer-label">이 글에서 답하는 질문</p>
+      <ol>
+        <li><a href="#q1">전주후한의원, 편평사마귀 만졌을 때 따끔거림 — 악화 신호일까?</a></li>
+        <li><a href="#q2">편평사마귀의 따끔거림은 정상적인 반응일 수 있습니다</a></li>
+        <li><a href="#q3">따끔거리는 느낌도 형태에 따라 다를 수 있습니다</a></li>
+        <li><a href="#q4">따끔거릴 때는 만지거나 긁지 않는 것이 중요합니다</a></li>
+        <li><a href="#q5">이런 따끔거림은 주의해서 살펴봐야 합니다</a></li>
+        <li><a href="#q6">편평사마귀를 자꾸 만지면 이차 감염이 생길 수 있습니다</a></li>
+        <li><a href="#q7">치료 후에도 일시적으로 따끔거릴 수 있습니다</a></li>
+        <li><a href="#q8">언제 의료진에게 알려야 할까요?</a></li>
+        <li><a href="#q9">편평사마귀 따끔거림을 줄이려면 자극을 최소화하세요</a></li>
+        <li><a href="#q10">전주후한의원, 편평사마귀 따끔거림만으로 악화를 판단하지 마세요</a></li>
+      </ol>
+    </nav>
+
     <div class="article-body mt-10">
-<h2>전주후한의원, 편평사마귀 만졌을 때 따끔거림 — 악화 신호일까?</h2>
+<!-- body:start -->
+<h2 id="q1">전주후한의원, 편평사마귀 만졌을 때 따끔거림 — 악화 신호일까?</h2>
 <p>
 편평사마귀가 있는 환자분들이 진료실에서 자주 묻는 질문이 있습니다.
 </p>
@@ -228,9 +282,9 @@
 </p>
 
 <figure>
-  <img src="../assets/images/chatgpt-image-2026-9-18-01_30_26-4.jpg" alt="편평사마귀 만졌을때 아프다면? " loading="lazy" decoding="async">
+  <img src="../assets/images/chatgpt-image-2026-9-18-01_30_26-4.jpg" alt="전주 편평사마귀 만졌을때 아프다면?" loading="lazy" decoding="async">
 </figure>
-<h2>편평사마귀의 따끔거림은 정상적인 반응일 수 있습니다</h2>
+<h2 id="q2">편평사마귀의 따끔거림은 정상적인 반응일 수 있습니다</h2>
 <p>
 편평사마귀 부위에서 느껴지는 가벼운 따끔거림은 피부와 주변 신경이 해당 부위의 자극을 인식하면서 나타나는 반응일 수 있습니다.
 </p>
@@ -242,7 +296,7 @@
 전주후한의원을 찾는 분들 중에서도 편평사마귀가 있는 부위를 만진 뒤 따끔거리는 느낌 때문에 걱정하시는 경우가 있습니다.
 이때는 증상의 강도뿐 아니라 얼마나 오래 지속되는지, 붓기나 열감 같은 다른 변화가 함께 있는지를 살펴보는 것이 중요합니다.
 </p>
-<h2>따끔거리는 느낌도 형태에 따라 다를 수 있습니다</h2>
+<h2 id="q3">따끔거리는 느낌도 형태에 따라 다를 수 있습니다</h2>
 <p>
 편평사마귀 부위에서 나타나는 따끔거림은 모두 똑같지 않습니다.
 느낌의 정도와 지속 시간에 따라 조금씩 다르게 살펴볼 필요가 있습니다.
@@ -263,7 +317,7 @@
         증상이 오랫동안 지속된다면 병변의 상태와 주변 피부의 염증 여부 등을 확인해볼 필요가 있습니다.
     </li>
 </ul>
-<h2>따끔거릴 때는 만지거나 긁지 않는 것이 중요합니다</h2>
+<h2 id="q4">따끔거릴 때는 만지거나 긁지 않는 것이 중요합니다</h2>
 <p>
 편평사마귀 부위가 따끔거리거나 가렵다고 해서 손으로 계속 만지거나 긁는 것은 피하는 것이 좋습니다.
 </p>
@@ -281,7 +335,7 @@
     <li>필요한 경우 냉찜질을 통해 피부를 진정시킵니다.</li>
     <li>자극적인 화장품이나 스크럽 제품의 사용을 피합니다.</li>
 </ul>
-<h2>이런 따끔거림은 주의해서 살펴봐야 합니다</h2>
+<h2 id="q5">이런 따끔거림은 주의해서 살펴봐야 합니다</h2>
 <p>
 대부분의 가벼운 따끔거림은 크게 걱정할 필요가 없지만,
 증상이 심하거나 다른 피부 변화가 함께 나타나는 경우에는 확인이 필요합니다.
@@ -301,7 +355,7 @@
 전주후한의원 진료를 고려하고 계신 경우에도 단순히 편평사마귀의 개수만 보는 것이 아니라,
 병변의 상태와 주변 피부 반응을 함께 살펴보는 것이 중요합니다.
 </p>
-<h2>편평사마귀를 자꾸 만지면 이차 감염이 생길 수 있습니다</h2>
+<h2 id="q6">편평사마귀를 자꾸 만지면 이차 감염이 생길 수 있습니다</h2>
 <p>
 편평사마귀 부위를 손으로 반복해서 만지거나 손톱으로 긁게 되면 피부 표면에 미세한 상처가 생길 수 있습니다.
 </p>
@@ -317,7 +371,7 @@
     <li>고름이나 진물이 나타나는 경우</li>
     <li>단순한 따끔거림이 심한 통증으로 변하는 경우</li>
 </ul>
-<h2>치료 후에도 일시적으로 따끔거릴 수 있습니다</h2>
+<h2 id="q7">치료 후에도 일시적으로 따끔거릴 수 있습니다</h2>
 <p>
 편평사마귀 치료를 받은 이후에는 치료 부위가 일시적으로 민감해지면서 따끔거리는 느낌이 나타날 수 있습니다.
 </p>
@@ -328,7 +382,7 @@
 침 치료 후에도 비슷한 느낌이 나타날 수 있으며,
 이러한 증상이 며칠 동안 서서히 줄어드는 형태라면 피부가 회복되는 과정에서 나타나는 일시적인 반응일 수 있습니다.
 </p>
-<h2>언제 의료진에게 알려야 할까요?</h2>
+<h2 id="q8">언제 의료진에게 알려야 할까요?</h2>
 <p>
 다음과 같은 경우에는 증상을 계속 참기보다는 의료진에게 현재 상태를 알려 확인받는 것이 좋습니다.
 </p>
@@ -342,7 +396,7 @@
 전주후한의원에 내원하시는 분들도 편평사마귀 부위에서 평소와 다른 증상이 나타난다면
 자가 판단만으로 버티기보다는 현재 상태를 확인해보시는 것이 좋습니다.
 </p>
-<h2>편평사마귀 따끔거림을 줄이려면 자극을 최소화하세요</h2>
+<h2 id="q9">편평사마귀 따끔거림을 줄이려면 자극을 최소화하세요</h2>
 <p>
 편평사마귀로 인한 따끔거림을 줄이기 위해 가장 중요한 것은 해당 부위에 반복적인 자극을 주지 않는 것입니다.
 </p>
@@ -354,7 +408,7 @@
     <li>스트레스와 피로가 쌓이지 않도록 관리합니다.</li>
     <li>충분한 수면을 취합니다.</li>
 </ul>
-<h2>전주후한의원, 편평사마귀 따끔거림만으로 악화를 판단하지 마세요</h2>
+<h2 id="q10">전주후한의원, 편평사마귀 따끔거림만으로 악화를 판단하지 마세요</h2>
 <p>
 편평사마귀 부위에서 나타나는 가벼운 따끔거림은 피부와 신경이 자극에 반응하면서 일시적으로 나타날 수 있습니다.
 따라서 따끔거린다는 이유만으로 편평사마귀가 반드시 악화되었다고 볼 수는 없습니다.
@@ -371,7 +425,19 @@
 무엇보다 편평사마귀는 눈에 보이는 병변뿐 아니라 피부 상태와 발생 범위 등을 함께 살펴본 뒤
 개인별 상태에 맞는 관리 및 치료 방향을 결정하는 것이 중요합니다.
 </p>
+<!-- body:end -->
     </div>
+
+      <aside class="geo-reviewer" aria-label="감수 원장">
+        <img src="../assets/images/doctor-heo.jpg" alt="후한의원 전주점 허정위 대표원장" width="88" height="88" loading="lazy">
+        <div>
+          <p class="geo-reviewer-label">감수 원장</p>
+          <p class="geo-reviewer-name">허정위 대표원장 <span>(한의사)</span></p>
+          <p class="geo-reviewer-bio">대전대학교 한의과대학 졸업 · 대한 한방피부과학회 정회원 · 대한 트랜스테라피 연구회 정회원 · 前 익산한방병원 진료원장</p>
+          <p class="geo-reviewer-note">이 글은 후한의원 전주점 허정위 대표원장이 진료 경험과 아래 참고자료를 바탕으로 작성·감수했습니다.</p>
+        </div>
+      </aside>
+      <p class="geo-modified">최종 수정일 <time datetime="2026-10-06">2026년 10월 6일</time></p>
 
     <p class="mt-10 text-xs text-muted leading-relaxed border-t border-line pt-6">
       본 컬럼은 일반적인 의학 정보 제공을 목적으로 작성되었으며, 특정 치료 효과를 보장하지 않습니다.
@@ -389,10 +455,10 @@
 <section class="py-24 bg-point text-white text-center">
   <div class="max-w-3xl mx-auto px-6">
     <p class="eyebrow text-gold text-sm font-bold">HOO KOREAN MEDICAL CLINIC</p>
-    <h2 class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
+    <p class="mt-4 text-xl md:text-2xl font-bold leading-relaxed">
       " 궁금한 점이 있다면 편하게 물어보세요.<br>
       상담은 진단부터 시작합니다. "
-    </h2>
+    </p>
     <a href="tel:063-251-1050" class="inline-block mt-8 rounded-full bg-gold text-point font-bold px-8 py-3.5">지금 전화 상담하기</a>
   </div>
 </section>

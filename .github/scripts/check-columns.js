@@ -9,6 +9,7 @@
 //   · 글에 쓰인 사진이 실제로 있는지
 //   · columns.html 카드 순서, sitemap.xml, llms.txt 가 목록과 같은지
 //   · 직전 커밋보다 글 개수가 줄었는데 "컬럼 삭제" 발행이 아닌지  ← v1 사고와 같은 상황
+//   · (GEO) 사진 alt 지역 키워드 · 예약/소급 날짜 흔적 · 주소의 날짜 · geo-v1 글의 구조
 const fs = require('fs');
 const path = require('path');
 const {execSync} = require('child_process');
@@ -81,6 +82,47 @@ if (columns) {
     }
   } catch (e) { /* 첫 커밋이거나 직전에 index.json 이 없던 경우 */ }
 }
+
+// ---- GEO 점검 ----
+//   · 모든 페이지의 사진 alt 에 지역 키워드(.github/geo.json 의 region)가 있는지
+//   · 발행일이 미래(예약 흔적)이거나 수정일이 발행일보다 앞선 글이 없는지, 주소에 날짜가 없는지
+//   · GEO 원칙(geo-v1)으로 쓴 글이 질문형 H2 8개·비교표 2개·참고자료 3개·FAQ 6개를 지키는지
+const geoCfg = exists('.github/geo.json') ? JSON.parse(read('.github/geo.json')) : {};
+const regionKw = geoCfg.region || '';
+const strip = h => unesc(String(h || '').replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim();
+if (regionKw) {
+  const pages = ['index.html', 'columns.html'].concat(
+    exists('columns') ? fs.readdirSync(path.join(root, 'columns')).filter(f => f.endsWith('.html')).map(f => 'columns/' + f) : []);
+  pages.filter(exists).forEach(p => {
+    const html = read(p);
+    [...html.matchAll(/<img\b[^>]*>/gi)].forEach(m => {
+      const alt = unesc(((/\salt="([^"]*)"/i.exec(m[0]) || [])[1] || ''));
+      if (alt.indexOf(regionKw) < 0) problems.push(`${p}: 사진 alt 에 지역 키워드 "${regionKw}"가 없습니다 → "${alt || '(alt 없음)'}"`);
+    });
+  });
+}
+const todayKST = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+(columns || []).forEach(c => {
+  if (/\d{4}-?\d{2}-?\d{2}/.test(c.slug)) problems.push(`${c.slug}: 주소에 날짜가 들어 있습니다`);
+  if (c.datePublished > todayKST) problems.push(`${c.slug}: 발행일(${c.datePublished})이 미래입니다 — 예약 발행 흔적`);
+  if (c.dateModified && c.dateModified < c.datePublished) problems.push(`${c.slug}: 수정일(${c.dateModified})이 발행일(${c.datePublished})보다 앞섭니다`);
+  const dp = `columns/data/${c.slug}.json`;
+  if (!exists(dp)) return;
+  let d; try { d = JSON.parse(read(dp)); } catch (e) { problems.push(`${dp}: 형식 오류`); return; }
+  if (d.format !== 'geo-v1') return;
+  const q = s => /\?\s*$/.test(strip(s));
+  const h2 = [...String(d.body || '').matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)].map(m => strip(m[1]));
+  if (!q(d.title)) problems.push(`${c.slug}: 제목이 질문형이 아닙니다`);
+  if (h2.length !== 8 || !h2.every(q)) problems.push(`${c.slug}: 질문형 H2 8개가 아닙니다 (${h2.length}개)`);
+  const tables = (String(d.body || '').match(/<table\b/gi) || []).length;
+  if (tables !== 2) problems.push(`${c.slug}: 비교표가 2개가 아닙니다 (${tables}개)`);
+  if ((d.references || []).length !== 3) problems.push(`${c.slug}: 참고자료가 3개가 아닙니다`);
+  if ((d.faqs || []).length !== 6) problems.push(`${c.slug}: FAQ가 6개가 아닙니다`);
+  const html = exists(`columns/${c.slug}.html`) ? read(`columns/${c.slug}.html`) : '';
+  if (html && !/class="geo-reviewer"/.test(html)) problems.push(`${c.slug}: 감수 원장 박스가 없습니다`);
+  if (html && !/class="geo-modified"/.test(html)) problems.push(`${c.slug}: 최종 수정일 표시가 없습니다`);
+  if (html && !/"@type": "FAQPage"/.test(html)) problems.push(`${c.slug}: FAQPage 구조화 데이터가 없습니다`);
+});
 
 warnings.forEach(w => console.log('::warning::' + w));
 problems.forEach(p => console.log('::error::' + p));
