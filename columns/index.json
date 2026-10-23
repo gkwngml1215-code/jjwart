@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "milia-white-bumps-around-eyes",
+      "title": "전주 눈가 비립종, 왜 생기고 어떻게 제거하면 좋을까요?",
+      "category": "비립종",
+      "cardSummary": "비립종은 피부 속 작은 주머니에 각질이 갇혀 눈 밑과 뺨에 생기는 1~2mm 크기의 하얀 알갱이입니다. 옮지 않는 양성 병변이지만 짜내면 자국이 남기 쉬워, 편평사마귀와 구분한 뒤 상태에 맞는 방법으로 정리하는 것이 좋습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24"
+    },
+    {
       "slug": "syringoma-under-eye-removal-care",
       "title": "전주 눈 밑 한관종, 어떤 병변이고 어떻게 제거·관리하나요?",
       "category": "한관종",
