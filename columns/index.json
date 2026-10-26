@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "sebaceous-hyperplasia-vs-flat-wart",
+      "title": "전주 이마·코 노란 돌기, 피지선증식증일까요 편평사마귀일까요?",
+      "category": "편평사마귀",
+      "cardSummary": "가운데가 오목한 노란빛 돌기는 피지선증식증, 살색으로 평평하고 줄지어 생기는 돌기는 편평사마귀일 가능성이 있습니다. 진료실에서 확인하는 순서와 확인 결과에 따라 달라지는 제거·관리 방법을 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27"
+    },
+    {
       "slug": "beard-area-flat-wart-shaving",
       "title": "전주 턱·수염 부위 편평사마귀, 면도할 때 왜 번지고 어떻게 관리하나요?",
       "category": "편평사마귀",
