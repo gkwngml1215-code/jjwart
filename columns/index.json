@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "neck-flat-wart-collar-necklace-friction",
+      "title": "전주 목 편평사마귀, 옷깃·목걸이 마찰로 번질 수 있나요?",
+      "category": "편평사마귀",
+      "cardSummary": "목은 셔츠 깃과 목걸이 줄, 머리카락과 머리끈이 하루 종일 스치는 자리라 편평사마귀가 마찰 선과 목 주름선을 따라 줄지어 늘어나기 쉽습니다. 번지는 이유, 쥐젖·검버섯과의 구별, 옷·액세서리·머리 관리와 제거 후 돌봄을 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30"
+    },
+    {
       "slug": "back-of-hand-finger-flat-wart-care",
       "title": "전주 손등·손가락 편평사마귀, 왜 손에 생기고 어떻게 관리하나요?",
       "category": "편평사마귀",
