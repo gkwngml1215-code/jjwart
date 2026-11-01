@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "flat-wart-dry-season-itch-moisturizing",
+      "title": "전주 편평사마귀, 날이 건조해지는 가을·겨울에 더 번지는 것처럼 느껴지는 이유는?",
+      "category": "편평사마귀",
+      "cardSummary": "공기가 마르고 난방을 켜는 가을·겨울에는 피부 겉층이 거칠어지고 가려움이 잦아져, 긁은 자국을 따라 편평사마귀가 옮겨 가기 쉬운 조건이 만들어집니다. 건조·각질·긁힘이 번짐과 이어지는 이유, 각질과의 구별, 보습 습관과 제거 후 돌봄을 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02"
+    },
+    {
       "slug": "neck-flat-wart-collar-necklace-friction",
       "title": "전주 목 편평사마귀, 옷깃·목걸이 마찰로 번질 수 있나요?",
       "category": "편평사마귀",
