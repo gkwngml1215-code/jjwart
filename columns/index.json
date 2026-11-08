@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "eyelid-eye-area-flat-wart-habits-care",
+      "title": "전주 눈가·눈꺼풀 편평사마귀, 왜 눈 주변에 생기고 치료할 때 무엇을 고려하나요?",
+      "category": "편평사마귀",
+      "cardSummary": "눈을 비비는 습관, 눈화장 도구, 렌즈를 끼고 빼는 손가락은 눈가·눈꺼풀 편평사마귀가 번지는 길이 될 수 있습니다. 한관종·비립종과의 간단한 차이, 눈 가까이에서 치료할 때 고려하는 점과 시술 후 관리를 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09"
+    },
+    {
       "slug": "flat-wart-exercise-sweat-gym-sauna",
       "title": "전주 편평사마귀, 헬스장·사우나에서 흘린 땀과 수건 때문에 번질 수 있나요?",
       "category": "편평사마귀",
