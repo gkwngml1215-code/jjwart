@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "forehead-hairline-flat-wart-hair-products",
+      "title": "전주 이마·헤어라인 편평사마귀, 앞머리와 헤어 제품 때문에 번질 수 있나요?",
+      "category": "편평사마귀",
+      "cardSummary": "앞머리가 닿는 이마 끝과 머리카락 경계에 생긴 편평사마귀는 마찰과 손길을 따라 늘어나기 쉽습니다. 모자·헤어밴드, 왁스·스프레이, 드라이 습관이 주는 영향과 좁쌀여드름과의 구별법, 치료 후 관리를 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11"
+    },
+    {
       "slug": "eyelid-eye-area-flat-wart-habits-care",
       "title": "전주 눈가·눈꺼풀 편평사마귀, 왜 눈 주변에 생기고 치료할 때 무엇을 고려하나요?",
       "category": "편평사마귀",
