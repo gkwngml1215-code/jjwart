@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "flat-wart-fatigue-sleep-stress-busy-season",
+      "title": "전주 편평사마귀, 야근·시험기간처럼 피곤하고 바쁠 때 더 늘어나는 것 같은 이유는?",
+      "category": "편평사마귀",
+      "cardSummary": "잠이 부족하고 스트레스가 많은 시기에는 바이러스를 억누르는 몸의 반응이 무뎌질 수 있고, 얼굴을 만지는 습관도 늘어나 편평사마귀가 많아진 것처럼 느껴질 수 있습니다. 피로·면역·바이러스의 관계를 과장 없이 살펴보고, 생활 리듬 관리와 바쁜 일정 속 치료 시기 잡는 법을 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13"
+    },
+    {
       "slug": "forehead-hairline-flat-wart-hair-products",
       "title": "전주 이마·헤어라인 편평사마귀, 앞머리와 헤어 제품 때문에 번질 수 있나요?",
       "category": "편평사마귀",
