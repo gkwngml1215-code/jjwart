@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "flat-wart-sun-uv-outdoor-activity-care",
+      "title": "전주 편평사마귀, 햇볕 아래 야외활동을 하고 나면 왜 더 눈에 띌까요?",
+      "category": "편평사마귀",
+      "cardSummary": "햇볕에 그을리거나 달아오른 피부에서는 원래 있던 편평사마귀의 윤곽이 또렷해지고, 땀을 닦고 선크림을 덧바르는 손길이 번짐으로 이어질 수 있습니다. 흑자·그을림과 구별하는 법, 자외선 차단 요령, 치료 전후 햇빛 관리를 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16"
+    },
+    {
       "slug": "flat-wart-fatigue-sleep-stress-busy-season",
       "title": "전주 편평사마귀, 야근·시험기간처럼 피곤하고 바쁠 때 더 늘어나는 것 같은 이유는?",
       "category": "편평사마귀",
