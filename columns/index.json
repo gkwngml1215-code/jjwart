@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "flat-wart-scratch-line-koebner-autoinoculation",
+      "title": "전주 편평사마귀, 긁은 자리를 따라 한 줄로 늘어서는 건 왜 그럴까요?",
+      "category": "편평사마귀",
+      "cardSummary": "가려워서 긁은 손톱 자국을 따라 편평사마귀가 점선처럼 이어지는 데에는 자가접종과 쾨브너 현상이 관련됩니다. 줄지어 생긴 돌기를 구별하는 법, 낮과 밤에 긁지 않고 넘기는 요령, 진료실에서의 정리 방법을 담았습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20"
+    },
+    {
       "slug": "flat-wart-pool-bathhouse-soaked-skin",
       "title": "전주 편평사마귀, 수영장·목욕탕에서 물에 불린 피부는 왜 번지기 쉬울까요?",
       "category": "편평사마귀",
