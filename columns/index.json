@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "cheek-cheekbone-flat-wart-daily-contact-care",
+      "title": "전주 볼·광대 편평사마귀, 마스크·베개·휴대폰처럼 얼굴에 닿는 것 때문에 번질까요?",
+      "category": "편평사마귀",
+      "cardSummary": "마스크 가장자리, 베개 커버, 통화 중 휴대폰 화면, 턱 괴기 습관처럼 볼에 반복해서 닿는 것들이 편평사마귀 번짐에 어떤 영향을 줄 수 있는지와 하루 일과에 맞춘 관리법을 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25"
+    },
+    {
       "slug": "arm-leg-flat-wart-body-hair-removal",
       "title": "전주 팔·다리 편평사마귀, 제모한 뒤 털 자리를 따라 늘어나는 것 같은 이유는?",
       "category": "편평사마귀",
