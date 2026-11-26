@@ -3,6 +3,15 @@
   "about": "원장 컬럼 목록의 원본입니다. 관리 도구가 발행할 때 이 파일을 먼저 읽고 파일명(slug) 기준으로 병합합니다. 직접 고칠 때는 다른 글이 빠지지 않게 주의하세요.",
   "columns": [
     {
+      "slug": "flat-wart-home-care-exfoliant-retinol-device",
+      "title": "전주 편평사마귀, 각질제거제·레티놀·마사지기 같은 홈케어는 계속 써도 될까요?",
+      "category": "편평사마귀",
+      "cardSummary": "스크럽·AHA/BHA, 필링 패드, 레티놀, 미백·트러블 앰플, 피부 마사지기와 클렌징 브러시를 편평사마귀가 있을 때 계속 써도 되는지, 치료 전후로 무엇을 쉬고 무엇을 유지할지 정리했습니다.",
+      "image": "assets/images/doctor-heo.jpg",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27"
+    },
+    {
       "slug": "cheek-cheekbone-flat-wart-daily-contact-care",
       "title": "전주 볼·광대 편평사마귀, 마스크·베개·휴대폰처럼 얼굴에 닿는 것 때문에 번질까요?",
       "category": "편평사마귀",
